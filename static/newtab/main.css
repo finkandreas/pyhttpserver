@@ -1,0 +1,50 @@
+button
+{
+  padding: 1px 6px;
+}
+
+.linksParent
+{
+  padding-left: 10px;
+  padding-bottom: 10px;
+}
+
+a
+{
+  margin-right: 20px;
+  padding: 2px;
+}
+a:hover
+{
+  color: red;
+}
+
+h1
+{
+  font-weight: bold;
+}
+
+table tr td, table tr th
+{
+  padding: 0px 5px;
+}
+table
+{
+  border-collapse: collapse;
+}
+table tr th
+{
+  text-align: center;
+  font-weight: bold;
+}
+table tr td
+{
+  text-align: center;
+}
+table td, table th {
+  border-right: 1px solid black;
+}
+table tr td:last-child,
+table tr th:last-child {
+  border-right: 0;
+}

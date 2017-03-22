@@ -1,0 +1,65 @@
+{# ``base.html`` is the template all our other templates derive from. While
+   Flask-Bootstrap ships with its own base, it is good form to create a custom
+   one for our app, as it allows customizing some aspects.
+
+   Deriving from bootstap/base.html gives us a basic page scaffoling.
+
+   You can find additional information about template inheritance at
+
+   http://jinja.pocoo.org/docs/templates/#template-inheritance
+#}
+{%- extends "bootstrap/base.html" %}
+
+{# We also set a default title, usually because we might forget to set one.
+   In our sample app, we will most likely just opt not to change it #}
+{% block title %}Account's status{% endblock %}
+
+{# While we are at it, we also enable fixes for legacy browsers. First we
+   import the necessary macros: #}
+{% import "bootstrap/fixes.html" as fixes %}
+
+{# Then, inside the head block, we apply these. To not replace the header,
+   ``super()`` is used: #}
+{% block head %}
+{{super()}}
+
+{%- endblock %}
+
+{# Adding our own CSS files is also done here. Check the documentation at
+   http://pythonhosted.org/Flask-Bootstrap/basic-usage.html#available-blocks
+   for an overview. #}
+{% block styles -%}
+    {{super()}}  {# do not forget to call super or Bootstrap's own stylesheets
+                    will disappear! #}
+    <style>
+      .row.even { background-color: #ececec; }
+      .row.transactions { background-color: #f6f6f6; }
+      .row.padded { padding: 5px 0px; }
+      .vertical-align { display: flex; align-items: center; }
+    </style>
+
+<!--    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='sample-app.css')}}"> -->
+{% endblock %}
+
+{# Finally, round things out with navigation #}
+{% block navbar %}
+{% endblock %}
+
+{% block content %}
+  {{super()}}
+  <div class="container">
+  {% for status,transactions in accountStatus -%}
+    {% set evenClass = loop.cycle('even', 'odd') %}
+    <div class="row vertical-align padded {{ evenClass }}"><div class="col-sm-9"><div>{{ status[0] }}</div><div>{{ status[1] }}</div></div><div class="col-sm-3 text-right"><strong>{{ status[2] }}</strong></div></div>
+    {% for t in transactions -%}
+      <div class="row transactions vertical-align {{ evenClass }}"><div class="col-sm-1"></div><div class="col-sm-2 vcenter"><strong>{{ t[0] }}</strong> ({{ t[1] }})</div><div class="col-sm-9">{{ t[2] }}</div></div>
+    {% endfor %}
+  {%- endfor %}
+    <div class="row">
+      <div class="col-sm-10"></div>
+      <div class="col-sm-2">
+        <span>Anzahl Tage: </span><a href="{{ url_for('get_financestatus') }}/10">10 </a><span style="width: 10px;"></span><a href="{{ url_for('get_financestatus') }}/30">30 </a>
+      </div>
+    </div>
+  </div>
+{% endblock %}

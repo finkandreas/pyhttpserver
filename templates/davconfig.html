@@ -1,0 +1,37 @@
+{%- extends "dav-base.html" %}
+
+{% block title %}DAV Server configuration{% endblock %}
+
+{% block head %}
+{{super()}}
+{%- endblock %}
+
+{% block styles -%}
+  {{super()}}
+  <style>
+  </style>
+{% endblock %}
+
+{% block scripts %}
+  {{super()}}
+  <script src="/static/davconfig/davconfig.js"></script>
+  <script type="text/javascript">
+    var configData = {{ config|tojson }};
+  </script>
+{% endblock %}
+
+{% block navbar_extra %}
+  {{super()}}
+  <div class="btn-group navbar-right" role="group" aria-label="Server control">
+    <button id="save_server_config_button" type="button" class="btn btn-primary navbar-btn"><span class="glyphicon glyphicon-save"></span> Save</button>
+    <button id="add_server_button" type="button" class="btn btn-success navbar-btn"><span class="glyphicon glyphicon-plus"></span> Add</button>
+  </div>
+{% endblock %}
+
+{% block content %}
+  {{super()}}
+  <div class="container">
+    <div class="panel-group" id="accounts_accordion" role="tablist" aria-multiselectable="true">
+    </div>
+  </div>
+{% endblock %}

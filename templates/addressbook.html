@@ -1,0 +1,281 @@
+{# ``base.html`` is the template all our other templates derive from. While
+   Flask-Bootstrap ships with its own base, it is good form to create a custom
+   one for our app, as it allows customizing some aspects.
+
+   Deriving from bootstap/base.html gives us a basic page scaffoling.
+
+   You can find additional information about template inheritance at
+
+   http://jinja.pocoo.org/docs/templates/#template-inheritance
+#}
+{%- extends "dav-base.html" %}
+
+{# We also set a default title, usually because we might forget to set one.
+   In our sample app, we will most likely just opt not to change it #}
+{% block title %}Addressbook{% endblock %}
+
+{# While we are at it, we also enable fixes for legacy browsers. First we
+   import the necessary macros: #}
+{% import "bootstrap/fixes.html" as fixes %}
+
+{# Then, inside the head block, we apply these. To not replace the header,
+   ``super()`` is used: #}
+{% block head %}
+{{super()}}
+
+{%- endblock %}
+
+{% block navbar_extra %}
+  {{super()}}
+  <form class="navbar-form navbar-right">
+    <button type="button" class="btn btn-success add_contact_button" aria-label="Add contact"><span class="glyphicon glyphicon-plus"></span> Add</button>
+    <span style="width: 5px; display: inline-block;"></span>
+    <div id="searchWrapper" class="form-group"></div>
+    <span style="width: 5px; display: inline-block;"></span>
+    <div id="lengthWrapper" class="form-group"></div>
+  </form>
+{% endblock %}
+
+
+{# Adding our own CSS files is also done here. Check the documentation at
+   http://pythonhosted.org/Flask-Bootstrap/basic-usage.html#available-blocks
+   for an overview. #}
+{% block styles -%}
+  {{super()}}  {# do not forget to call super or Bootstrap's own stylesheets
+                  will disappear! #}
+  <link rel="stylesheet" type="text/css" href="/static/addressbook/datatables.min.css">
+  <link rel="stylesheet" type="text/css" href="/static/addressbook/jquery-ui.min.css" />
+  <link rel="stylesheet" type="text/css" href="/static/addressbook/jquery-ui.structure.min.css" />
+  <link rel="stylesheet" type="text/css" href="/static/addressbook/jquery-ui.theme.min.css" />
+  <style>
+    body { cursor: default; }
+    #addressbook td { vertical-align: middle; }
+    .del_contact_button { display: none; padding: 0px 3px; }
+    #addressbook tr:hover .del_contact_button { display: block; }
+    #vcard { padding-right: 30px; background: #fafafa; border-color: black; }
+    #phoneEmailDiv td { vertical-align: middle; }
+    #vcard_edit_parent { background: #f5f5f5; }
+    .navbar-form.navbar-right { color: #9d9d9d; margin-bottom: 0px; margin-top: 4px; }
+  </style>
+{% endblock %}
+
+{% block scripts %}
+  {{super()}}
+  <script src="/static/addressbook/datatables.min.js"></script>
+  <script src="/static/addressbook/jquery-ui.min.js"></script>
+  <script src="/static/addressbook/addressbook.js"></script>
+  <script type="text/javascript">
+  </script>
+{% endblock %}
+
+
+{% block content %}
+  {{super()}}
+  <div style="position: absolute; display: none; z-index: 5;">
+    <div style="position:absolute; top:5px; right: 5px;">
+      <div class="btn-group btn-group-xs" role="group" aria-label="Close/Edit contact">
+        <button id="vcard_edit" type="button" class="btn btn-default" aria-label="Edit"><span class="glyphicon glyphicon-pencil" style="cursor: pointer;"></span></button>
+        <button id="vcard_close" type="button" class="btn btn-default" aria-label="Close"><span class="glyphicon glyphicon-remove" style="cursor: pointer;"></span></button>
+      </div>
+    </div>
+    <pre id="vcard"></pre>
+  </div>
+
+  <div id="vcard_edit_parent" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" class="glyphicon glyphicon-remove"></span></button>
+          <h4 class="modal-title">Edit contact</h4>
+        </div>
+        <div class="modal-body">
+          <div style="padding-bottom: 10px;">
+            <span>Collection </span>
+            <div id="collections_parent" class="btn-group">
+              <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Select collection <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu">
+                {% for col in collections -%}
+                  <li colid="{{ col.id }}"><a href="#">{{ col.name }}</a></li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+          <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+            <div class="panel panel-default">
+              <div class="panel-heading" role="tab" id="generalInfo">
+                <h4 class="panel-title">
+                  <a role="button" data-toggle="collapse" data-parent="#accordion" href="#generalDiv" aria-expanded="true" aria-controls="generalDiv">
+                    General
+                  </a>
+                </h4>
+              </div>
+              <div id="generalDiv" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="generalInfo">
+                <div class="panel-body">
+                  <form class="form-inline">
+                    <div>
+                      <div class="form-group">
+                        <label for="given">Given</label>
+                        <input type="text" class="form-control" id="given" placeholder="Given" size="15" />
+                      </div>
+                      <div class="form-group">
+                        <label for="family">Family</label>
+                        <input type="text" class="form-control" id="family" placeholder="Family" size="15" />
+                      </div>
+                    </div>
+                    <div style="padding-top: 5px;">
+                      <div class="form-group">
+                        <label for="prefix">Prefix</label>
+                        <input type="text" class="form-control" id="prefix" placeholder="Prefix" size="4" />
+                      </div>
+                      <div class="form-group">
+                        <label for="additional">Additional</label>
+                        <input type="text" class="form-control" id="additional" placeholder="Additional" size="10" />
+                      </div>
+                      <div class="form-group">
+                        <label for="suffix">Suffix</label>
+                        <input type="text" class="form-control" id="suffix" placeholder="Suffix" size="4" />
+                      </div>
+                    </div>
+                    <div style="padding-top: 5px;">
+                      <div class="form-group">
+                        <label for="bday">Birthday</label>
+                        <input type="text" class="form-control" id="bday" placeholder="Birthday" size="11" />
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <div class="panel panel-default">
+              <div class="panel-heading" role="tab" id="addressesInfo">
+                <h4 class="panel-title">
+                  <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#addressesDiv" aria-expanded="false" aria-controls="addressesDiv">
+                    Addresses
+                  </a>
+                </h4>
+              </div>
+              <div id="addressesDiv" class="panel-collapse collapse" role="tabpanel" aria-labelledby="addressesInfo">
+                <div class="panel-body">
+                  <div class="btn-group" role="group" aria-label="Choose/Delete/Edit address">
+                    <div class="btn-group" role="group">
+                      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <span id="address_type_text">Address type</span>
+                        <span class="caret"></span>
+                      </button>
+                      <ul class="dropdown-menu">
+                      </ul>
+                    </div>
+                    <button id="address_type_edit" type="button" class="btn btn-default" data-toggle="collapse" data-target="#address_type_div" aria-expanded="false" arai-controls="address_type_div" aria-label="Edit address type"><span class="glyphicon glyphicon-pencil"></span></button>
+                    <button id="address_add" type="button" class="btn btn-success" aria-label="Add address"><span class="glyphicon glyphicon-plus"></span></button>
+                    <button id="address_remove" type="button" class="btn btn-danger" aria-label="Remove address"><span class="glyphicon glyphicon-remove"></span></button>
+                  </div>
+                  <div id="address_type_div" class="collapse" style="padding-top: 5px">
+                    <form class="form-inline">
+                      <label class="checkbox-inline"><input type="checkbox" id="adr_work_type_cb" value="work"> work</label>
+                      <label class="checkbox-inline"><input type="checkbox" id="adr_home_type_cb" value="home"> home</label>
+                      <label class="checkbox-inline"><input type="checkbox" id="adr_pref_cb" value="pref"> preferred</label>
+                      <div class="form-group" style="padding-left: 10px;">
+                        <label for="adr_custom_type">Custom </label>
+                        <input type="text" class="form-control" id="adr_custom_type" placeholder="Custom types" size="20" />
+                      </div>
+                    </form>
+                  </div>
+                  <form class="form-inline">
+                    <div style="padding-top: 5px">
+                      <div class="form-group">
+                        <label for="street">Street</label>
+                        <input type="text" class="form-control adr_field" id="street" placeholder="Street" size="30" />
+                      </div>
+                    </div>
+                    <div style="padding-top: 5px;">
+                      <div class="form-group">
+                        <label for="code">Postcode</label>
+                        <input type="text" class="form-control adr_field" id="code" placeholder="Postcode" size="5" />
+                      </div>
+                      <div class="form-group">
+                        <label for="city">City</label>
+                        <input type="text" class="form-control adr_field" id="city" placeholder="City" size="15" />
+                      </div>
+                    </div>
+                    <div style="padding-top: 5px;">
+                      <div class="form-group">
+                        <label for="region">Region</label>
+                        <input type="text" class="form-control adr_field" id="region" placeholder="Region" size="15" />
+                      </div>
+                      <div class="form-group">
+                        <label for="country">Country</label>
+                        <input type="text" class="form-control adr_field" id="country" placeholder="Country" size="15" />
+                      </div>
+                    </div>
+                    <div style="padding-top: 5px;">
+                      <div class="form-group">
+                        <label for="box">Postbox</label>
+                        <input type="text" class="form-control adr_field" id="box" placeholder="Postbox" size="5" />
+                      </div>
+                      <div class="form-group">
+                        <label for="extended">Extended</label>
+                        <input type="text" class="form-control adr_field" id="extended" placeholder="Extended information" size="15" />
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <div class="panel panel-default">
+              <div class="panel-heading" role="tab" id="phoneEmailInfo">
+                <h4 class="panel-title">
+                  <a role="button" data-toggle="collapse" data-parent="#accordion" href="#phoneEmailDiv" aria-expanded="true" aria-controls="phoneEmailDiv">
+                    E-Mail / Phone
+                  </a>
+                </h4>
+              </div>
+              <div id="phoneEmailDiv" class="panel-collapse collapse" role="tabpanel" aria-labelledby="phoneEmailInfo">
+                <table class="table">
+                  <thead><tr><th>Type</th><th>Value</th><th>Pref</th><th>Del</th></tr></thead>
+                  <tbody></tbody>
+                </table>
+                <div class="btn-group" role="group" aria-label="Add mail/phone">
+                  <button id="telAdd" type="button" class="btn btn-success" aria-label="Add phone"><span class="glyphicon glyphicon-plus"></span> &#9742;</button>
+                  <button id="emailAdd" type="button" class="btn btn-success" aria-label="Add email"><span class="glyphicon glyphicon-plus"></span> @</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Dismiss</button>
+          <button id="edit_save" type="button" class="btn btn-primary">Save changes</button>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+
+  <div class="container">
+    <table id="addressbook" class="table table-striped" data-order='[[ 0, "asc" ]]'>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>E-Mail</th>
+          <th>Birthday</th>
+          <th>Phone</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% autoescape false %}
+        {% for item in items -%}
+          <tr data="{{ item['id'] }}">
+            <td>{{ item['fn'] }}</td>
+            <td>{{ item['email'] }}</td>
+            <td data-order="{{ item['bday_diff'] }}">{{ item['bday'] }}</td>
+            <td>{{ item['tel'] }}</td>
+            <td><button type="button" class="btn btn-danger btn-xs del_contact_button" aria-label="Delete contact"><span class="glyphicon glyphicon-remove"></span></button></td>
+          </tr>
+        {% endfor %}
+        {% endautoescape %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

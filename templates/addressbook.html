@@ -43,10 +43,10 @@
 {% block styles -%}
   {{super()}}  {# do not forget to call super or Bootstrap's own stylesheets
                   will disappear! #}
-  <link rel="stylesheet" type="text/css" href="/static/addressbook/datatables.min.css">
-  <link rel="stylesheet" type="text/css" href="/static/addressbook/jquery-ui.min.css" />
-  <link rel="stylesheet" type="text/css" href="/static/addressbook/jquery-ui.structure.min.css" />
-  <link rel="stylesheet" type="text/css" href="/static/addressbook/jquery-ui.theme.min.css" />
+  <link rel="stylesheet" type="text/css" href="/static/3rdparty/datatables.min.css">
+  <link rel="stylesheet" type="text/css" href="/static/3rdparty/jquery-ui.min.css" />
+  <link rel="stylesheet" type="text/css" href="/static/3rdparty/jquery-ui.structure.min.css" />
+  <link rel="stylesheet" type="text/css" href="/static/3rdparty/jquery-ui.theme.min.css" />
   <style>
     body { cursor: default; }
     #addressbook td { vertical-align: middle; }
@@ -61,8 +61,8 @@
 
 {% block scripts %}
   {{super()}}
-  <script src="/static/addressbook/datatables.min.js"></script>
-  <script src="/static/addressbook/jquery-ui.min.js"></script>
+  <script src="/static/3rdparty/datatables.min.js"></script>
+  <script src="/static/3rdparty/jquery-ui.min.js"></script>
   <script src="/static/addressbook/addressbook.js"></script>
   <script type="text/javascript">
   </script>

@@ -30,7 +30,7 @@ class DbusKeyring(object):
     self.session = None
 
   def __del__(self):
-    DbusProxyIface(self.bus.get_object("org.freedesktop.secrets", self.session), "org.freedesktop.Secret.Session").CallMethod("Close")
+    if (self.session): DbusProxyIface(self.bus.get_object("org.freedesktop.secrets", self.session), "org.freedesktop.Secret.Session").CallMethod("Close")
     self.bus.close()
 
   def SetSecret(self, item, password):

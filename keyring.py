@@ -94,6 +94,6 @@ class DbusKeyring(object):
     else: self.CreateItem(attributesToMatch, password)
 
   def _received_pw(self, dismissed, objectPath):
-    self.bus.remove_signal_receiver(handler_function=self._received_pw, signal_name="Completed", dbus_interface="org.freedesktop.Secret.Prompt")
+    self.bus.remove_signal_receiver(self._received_pw, signal_name="Completed", dbus_interface="org.freedesktop.Secret.Prompt")
     self.PromptDismissed = dismissed
     self.loop.quit()

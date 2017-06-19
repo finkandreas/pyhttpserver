@@ -51,7 +51,7 @@ def get(delta=9):
     start = (datetime.date.today()-datetime.timedelta(days=(delta+(2 if accountId=="6" else 0)))).strftime("%d.%m.%Y")
     end = datetime.date.today().strftime("%d.%m.%Y")
     if accountId == "6":
-      payload.update(dict(searchPeriod="0", postingDate=start, toPostingDate=end))
+      payload.update(dict(slSearchPeriod="0", filterType="DATE_RANGE", searchPeriod="0", postingDate=start, toPostingDate=end))
     else:
       payload.update(dict(slSearchPeriod="1", searchPeriodRadio="1", transactionDate=start, toTransactionDate=end))
     payload['$event'] = "search"

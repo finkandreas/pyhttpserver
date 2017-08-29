@@ -43,19 +43,19 @@ def get(delta=9):
   accountStatus = [ (row[0][0].text.strip(), row[0][1].text.strip(), row[-2][0].text.strip()) for row in allRows ] # array with all account status (Name, IBAN, Balance)
   logoutHref = "https://www.dkb.de{}".format(doc.cssselect('#logout')[0].get('href'))
 
-  accounts = ["1", "2", "3", "4", "6"]
+  accounts = ["0", "1", "2", "3", "4"]
   accountTransactions = []
   removeCommon = re.compile('{}|{}|{}|{}|{}|{}|{}|1\.TAN\s+\d+'.format(re.escape('GV-Code: '), 'Gutschrift', 'Überweisung', 'Dauerauftrag', re.escape('Kartenzahlung/-abrechnung'), re.escape('Lohn, Gehalt, Rente'), 'Lastschrift'), re.IGNORECASE)
   for accountId in accounts:
     payload = dict(slAllAccounts=accountId, slTransactionStatus="0")
-    start = (datetime.date.today()-datetime.timedelta(days=(delta+(2 if accountId=="6" else 0)))).strftime("%d.%m.%Y")
+    start = (datetime.date.today()-datetime.timedelta(days=(delta+(2 if accountId=="4" else 0)))).strftime("%d.%m.%Y")
     end = datetime.date.today().strftime("%d.%m.%Y")
-    if accountId == "6":
-      payload.update(dict(slSearchPeriod="0", filterType="DATE_RANGE", searchPeriod="0", postingDate=start, toPostingDate=end))
+    if accountId == "4":
+      payload.update(dict(slSearchPeriod="0", filterType="DATE_RANGE", slTransactionStatus="0", postingDate=start, toPostingDate=end))
     else:
       payload.update(dict(slSearchPeriod="1", searchPeriodRadio="1", transactionDate=start, toTransactionDate=end))
     payload['$event'] = "search"
-    response = session.post('https://www.dkb.de/banking/finanzstatus/{}'.format("kontoumsaetze" if accountId != "6" else "kreditkartenumsaetze"), data = payload)
+    response = session.post('https://www.dkb.de/banking/finanzstatus/{}'.format("kontoumsaetze" if accountId != "4" else "kreditkartenumsaetze"), data = payload)
     response.raise_for_status()
     #~ open("response{}.raw".format(accountId), "wb").write(response.content)
     doc = etree.HTML(response.content)

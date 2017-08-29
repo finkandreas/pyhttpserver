@@ -62,15 +62,6 @@ function buildWebsite() {
     document.dynamicNodes = document.dynamicNodes.add(newNode);
   }
 
-  $('#adminButton').click(function() {
-    gotoMam('admin', $('#mam_host_input').val());
-  });
-  $('#wsmButton').click(function() {
-    gotoMam('wsm', $('#mam_host_input').val());
-  });
-  $('#namingButton').click(function() {
-    gotoMam('naming', $('#mam_host_input').val());
-  });
   setInterval(function() {
     $('#Time').html(new Date().toString());
   }, 1000);
@@ -90,6 +81,10 @@ function buildWebsite() {
       timeoutId = setTimeout(function() { $('#financestatus_div').remove(); }, 200);
     })
     timeoutId = setTimeout(function() { $('#financestatus_div').remove(); }, 200);
+  });
+
+  $.get('/nettime', function(data) {
+    $('#nettime_status').html(' ('+data+')');
   });
 }
 

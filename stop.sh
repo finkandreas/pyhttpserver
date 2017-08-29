@@ -1,3 +1,3 @@
 #!/bin/bash
 
-kill $(pgrep -f python.*flasktest.py)
+kill $(pgrep -f python.*flask)

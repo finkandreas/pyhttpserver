@@ -1,4 +1,4 @@
-from flask import Flask, render_template, json, request
+from flask import Flask, render_template, json, request, make_response
 from flask_socketio import SocketIO
 from flask_bootstrap import Bootstrap
 
@@ -53,7 +53,11 @@ def get_vcard_json():
 
 @app.route("/keyring")
 def get_keyring_pw():
-  return keyring.DbusKeyring().FindItem(request.args)[1] or ""
+  secret = request.args.get('secret')
+  resp = make_response(keyring.DbusKeyring().FindItem(request.args)[1] or "")
+  if secret and secret==app.config['SECRET_KEY']:
+    resp.headers['Access-Control-Allow-Origin'] = '*'
+  return resp
 
 @app.route("/dav", methods=['GET', 'POST'])
 def show_dav_config():

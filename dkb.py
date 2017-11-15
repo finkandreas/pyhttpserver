@@ -72,7 +72,7 @@ def get(delta=9):
       date = ""
       explanation = ""
       for td in row:
-        if td.get('headers').find("disposalDate")>0 or td.get('headers').find('transactionDate')>0: date = td.cssselect('.valueDate')[0].text
+        if td.get('headers').find("disposalDate")>0 or td.get('headers').find('transactionDate')>0: date = "" if len(td.cssselect('.valueDate'))==0 else td.cssselect('.valueDate')[0].text
         if td.get('headers').find('amountToTransfer')>0 or td.get('headers').find('localAmount.value')>0: cost = " ".join([t.strip() for t in td.itertext()])
         if td.get('headers').find('text')>0 or td.get('headers').find('type')>0: explanation = removeCommon.sub('', " ".join([t.strip() for t in td.itertext()]).replace('GV-Code: ', "")).strip()
       localTransactions.append( (cost, date, explanation) )

@@ -1,11 +1,11 @@
-from xdg import BaseDirectory
+from common import get_config_dir
 from pydal import DAL, Field, SQLCustomType
 import pickle
 import base64
 
 class KeyValueStore(object):
   def __init__(self):
-    self.db = DAL('sqlite://keyvalstore.db', folder=BaseDirectory.save_data_path('pyhttpserver'))
+    self.db = DAL('sqlite://keyvalstore.db', folder=get_config_dir())
     self.db.define_table('store', Field('key', type='string', required=True, unique=True),
                                   Field('value', type='blob'))
 

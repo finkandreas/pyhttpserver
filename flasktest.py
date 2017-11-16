@@ -5,6 +5,7 @@ from flask_bootstrap import Bootstrap
 import financestatus
 import caldav
 import carddav
+import nettime
 import keyring
 import common
 
@@ -17,6 +18,8 @@ socketio = SocketIO(app)
 
 socketio.start_background_task(financestatus.fetch_background, socketio)
 socketio.start_background_task(carddav.sync_background, socketio)
+socketio.start_background_task(nettime.fetch_background, socketio)
+
 
 @socketio.on('message')
 def handle_message(message):
@@ -53,11 +56,13 @@ def get_vcard_json():
 
 @app.route("/keyring")
 def get_keyring_pw():
-  secret = request.args.get('secret')
-  resp = make_response(keyring.DbusKeyring().FindItem(request.args)[1] or "")
-  if secret and secret==app.config['SECRET_KEY']:
-    resp.headers['Access-Control-Allow-Origin'] = '*'
-  return resp
+  #~ args = request.args.to_dict()
+  #~ secret = args.pop('secret', None)
+  #~ resp = make_response(keyring.DbusKeyring().FindItem(args)[1] or "")
+  #~ if secret and secret==app.config['SECRET_KEY']:
+    #~ resp.headers['Access-Control-Allow-Origin'] = '*'
+  #~ return resp
+  return keyring.DbusKeyring().FindItem(args)[1] or ""
 
 @app.route("/dav", methods=['GET', 'POST'])
 def show_dav_config():
@@ -83,6 +88,9 @@ def get_financestatus():
 def get_financestatus_days(days):
   return render_template("financestatus.html", accountStatus=financestatus.FinanceStatus().get_unbuffered(days))
 
+@app.route("/nettime")
+def get_nettime():
+  return nettime.Nettime().get_buffered()
 
 if __name__ == "__main__":
   while True:

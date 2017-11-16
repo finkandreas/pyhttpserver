@@ -1,5 +1,5 @@
 from vdirsyncer.storage.dav import CardDAVStorage
-from vdirsyncer.utils.vobject import Item
+from vdirsyncer.vobject import Item
 import requests
 import common
 import vobject
@@ -10,6 +10,7 @@ from dateutil.rrule import rrule,YEARLY
 from datetime import datetime
 from eventlet import tpool
 from misc import *
+import os
 import re
 
 def _do_sync_background():
@@ -108,6 +109,7 @@ class CardDav(object):
       self.db(self.db.colitems.collection==collectionRow.id).delete();
 
     self.db.commit()
+    self.writeAllToVcf(os.path.join(common.get_config_dir(), "addressbook.vcf"))
 
 
   def get_collection_id(self, url):
@@ -169,6 +171,13 @@ class CardDav(object):
     ret['itemid'] = id
     ret['colid'] = self.db(self.db.colitems.id == id).select()[0].collection;
     return ret
+
+  def writeAllToVcf(self, filepath):
+    f = open(filepath, "w")
+    for x in self.db(self.db.colitems.local_status != 2).select():
+      vc = vcard21_to_vcard30(vobject.readOne(x.content))
+      f.write(vc.serialize())
+      f.write("\n\n")
 
   def get_serialized(self, id):
     vcard = self.get_structured(id)

@@ -1,5 +1,5 @@
 from vdirsyncer.storage.dav import CalDAVStorage
-from vdirsyncer.utils.vobject import Item
+from vdirsyncer.vobject import Item
 import requests
 import common
 import vobject

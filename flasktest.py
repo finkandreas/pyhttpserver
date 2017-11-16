@@ -62,7 +62,7 @@ def get_keyring_pw():
   #~ if secret and secret==app.config['SECRET_KEY']:
     #~ resp.headers['Access-Control-Allow-Origin'] = '*'
   #~ return resp
-  return keyring.DbusKeyring().FindItem(args)[1] or ""
+  return keyring.DbusKeyring().FindItem(request.args)[1] or ""
 
 @app.route("/dav", methods=['GET', 'POST'])
 def show_dav_config():

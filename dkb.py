@@ -6,6 +6,7 @@ from lxml.html import HtmlElement
 import keyring
 import datetime
 import re
+import sys
 
 #~ from http.client import HTTPConnection
 #~ import logging
@@ -84,7 +85,7 @@ def get(delta=9):
   return list(zip(accountStatus, accountTransactions))
 
 if __name__ == '__main__':
-  for accountStatus, accountTransactions in get():
+  for accountStatus, accountTransactions in get(int(sys.argv[1]) if len(sys.argv)>1 else 3):
     print("{:<35}{:<35}{:>10}".format(*accountStatus))
     print("\n".join("\t{:<10}{:<10} {}".format(*accountTransaction) for accountTransaction in accountTransactions))
     print("\n")

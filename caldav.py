@@ -63,7 +63,7 @@ class CalDav(object):
         self.db.collections.update_or_insert(self.db.collections.url==s['url'], url=s['url'], displayname=displayname)
         self.davStorages[s['url']] = subStorage
     for deletedCollection in deletedCollections:
-      print("Collections with url={} was deleted on the server side".format(deletedCollection))
+      print("Collection with url={} was deleted on the server side".format(deletedCollection))
       self.db(self.db.collections.url == deletedCollection).delete()
     self.db.commit()
 

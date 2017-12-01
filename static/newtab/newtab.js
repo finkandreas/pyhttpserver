@@ -39,6 +39,81 @@ $(function() {
   };
 });
 
+
+function buildWeather() {
+  [{'ctx': 'weatherChart', 'data': meteoschweizData[0]}, {'ctx': 'weatherChartTomorrow', 'data': meteoschweizData[1]}, {'ctx': 'weatherChartEth', 'data': meteoschweizDataEth[0]}, {'ctx': 'weatherChartEthTomorrow', 'data': meteoschweizDataEth[1]}].forEach(function(dataSet) {
+    var ctx = document.getElementById(dataSet.ctx).getContext('2d');
+    timeHours = ['00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00'];
+    precipitationData = dataSet.data.rainfall.map(function(el, idx) { return {t: timeHours[idx], y: el[1]}; });
+    temperatureData = dataSet.data.temperature.map(function(el, idx) { return {t: timeHours[idx], y: el[1]}; });
+    tempMin = dataSet.data.temperature.reduce(function(min, el) { return el[1]<min?el[1]:min; }, dataSet.data.temperature[0][1]);
+    tempMax = dataSet.data.temperature.reduce(function(max, el) { return el[1]>max?el[1]:max; }, dataSet.data.temperature[0][1]);
+    console.log(tempMin, tempMax)
+    var myChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        datasets: [{
+          label: 'Temperature',
+          data: temperatureData,
+          borderColor: 'rgba(255, 0, 0, 1)',
+          backgroundColor: 'rgba(0,0,0,0)',
+          type: 'line',
+          yAxisID: 'temperature-y-axis'
+        }, {
+          label: 'Precipitation',
+          data: precipitationData,
+          backgroundColor: 'rgba(0, 255, 255, 0.5)',
+          yAxisID: 'precipitation-y-axis'
+        }],
+      },
+      options: {
+        maintainAspectRatio: false,
+        legend: {
+          display: false
+        },
+        scales: {
+          yAxes: [{
+            id: 'precipitation-y-axis',
+            type: 'linear',
+            position: 'right',
+            ticks: {
+              max: 6,
+            },
+            gridLines: {
+              display: false
+            }
+          }, {
+            id: 'temperature-y-axis',
+            type: 'linear',
+            ticks: {
+              min: Math.floor(tempMin)-1,
+              max: Math.ceil(tempMax)+1,
+            },
+            gridLines: {
+              display: true
+            }
+          }],
+          xAxes: [{
+            id: 'time-x-axis',
+            type: 'time',
+            position: 'bottom',
+            time: {
+              unit: 'hour',
+              parser: 'HH:mm',
+              displayFormats: {
+                hour: 'HH:mm'
+              }
+            },
+            gridLines: {
+              display: false
+            }
+          }]
+        }
+      }
+    });
+  })
+}
+
 function buildWebsite() {
   data = localStorage2.data;
   pw = localStorage2.pw;
@@ -86,6 +161,8 @@ function buildWebsite() {
   $.get('/nettime', function(data) {
     $('#nettime_status').html(' ('+data+')');
   });
+
+  buildWeather();
 }
 
 
@@ -95,18 +172,5 @@ function decodeWithSjcl(text, pw) {
   } catch (error) {
     console.error("Error: ", error);
     return "<html><head /><body /></html>";
-  }
-}
-
-function gotoMam(where, host) {
-  if( where=="admin" ) {
-    if (parent) parent.location = "http://"+host+":12400/MediaArchiveAdminSuite/login.aspx";
-    else window.location = "http://"+host+":12400/MediaArchiveAdminSuite/login.aspx";
-  } else if( where=="wsm" ) {
-    if (parent) parent.location = "http://"+host+":12500/LoginServiceWS/Start.aspx";
-    else window.location = "http://"+host+":12500/LoginServiceWS/Start.aspx";
-  } else if( where=="naming" ) {
-    if (parent) parent.location = "http://"+host+":12401/ConfigurationServiceWSAdmin/manageNaming/ManageNamingEntries.aspx";
-    else window.location = "http://"+host+":12401/ConfigurationServiceWSAdmin/manageNaming/ManageNamingEntries.aspx";
   }
 }

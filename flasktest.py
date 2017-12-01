@@ -2,12 +2,13 @@ from flask import Flask, render_template, json, request, make_response
 from flask_socketio import SocketIO
 from flask_bootstrap import Bootstrap
 
-import financestatus
 import caldav
 import carddav
-import nettime
-import keyring
 import common
+import financestatus
+import keyring
+import nettime
+from periodic_fetch import PeriodicFetcher, MeteoSchweiz
 
 app = Flask(__name__)
 app.config['BOOTSTRAP_SERVE_LOCAL'] = True
@@ -19,6 +20,10 @@ socketio = SocketIO(app)
 socketio.start_background_task(financestatus.fetch_background, socketio)
 socketio.start_background_task(carddav.sync_background, socketio)
 socketio.start_background_task(nettime.fetch_background, socketio)
+
+periodicFetcher = PeriodicFetcher(socketio)
+periodicFetcher.register_callback(MeteoSchweiz.update, frequency=600, single_shot=False)
+socketio.start_background_task(periodicFetcher.run)
 
 
 @socketio.on('message')
@@ -87,6 +92,10 @@ def get_financestatus():
 @app.route("/dkb/<int:days>")
 def get_financestatus_days(days):
   return render_template("financestatus.html", accountStatus=financestatus.FinanceStatus().get_unbuffered(days))
+
+@app.route("/newtab")
+def get_newtab():
+  return render_template('newtab.html', meteoschweizDietikon=MeteoSchweiz().get_buffered('895300'), meteoschweizEth=MeteoSchweiz().get_buffered('804900'))
 
 @app.route("/nettime")
 def get_nettime():

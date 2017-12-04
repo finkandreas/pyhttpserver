@@ -1,7 +1,7 @@
 $(function() {
   // connect to the websocket only 60 seconds after opening, thus stopping to connect for shortly opened new tabs
   setTimeout(function() {
-    var socket = io.connect('http://' + document.domain + ':' + document.location.port)
+    var socket = io.connect('http://' + document.domain + ':' + document.location.port, {transports: ['websocket']})
     // var socket = io.connect('http://' + document.domain + ':' + document.location.port + '/NAMESPACE')
 
     // events sent with socketio.send(...) will all be matched with this event handler
@@ -19,5 +19,15 @@ $(function() {
     socket.on('some event name', function(data) {
       console.log("Received 'some event name' event", data);
     })
+
+    socket.on('weather', function(data) {
+      console.log("Received 'weather' event", data);
+      var weatherData = JSON.parse(data.data);
+      updateWeather('weatherChart'+data.zip, weatherData[0]);
+      updateWeather('weatherChart'+data.zip+'Tomorrow', weatherData[1]);
+    });
+    socket.on('transferwise', function(data) {
+      updateTransferwise(data.data);
+    });
   }, 60*1000)
 })

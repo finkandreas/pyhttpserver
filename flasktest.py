@@ -8,7 +8,7 @@ import common
 import financestatus
 import keyring
 import nettime
-from periodic_fetch import PeriodicFetcher, MeteoSchweiz
+from periodic_fetch import PeriodicFetcher, MeteoSchweiz, Transferwise
 
 app = Flask(__name__)
 app.config['BOOTSTRAP_SERVE_LOCAL'] = True
@@ -17,12 +17,12 @@ app.config['SECRET_KEY'] = 'secret!'
 Bootstrap(app)
 socketio = SocketIO(app)
 
-socketio.start_background_task(financestatus.fetch_background, socketio)
-socketio.start_background_task(carddav.sync_background, socketio)
-socketio.start_background_task(nettime.fetch_background, socketio)
-
 periodicFetcher = PeriodicFetcher(socketio)
-periodicFetcher.register_callback(MeteoSchweiz.update, frequency=600, single_shot=False)
+periodicFetcher.register_callback(MeteoSchweiz.update, frequency=1800, single_shot=False)
+periodicFetcher.register_callback(Transferwise.update, frequency=600, single_shot=False)
+periodicFetcher.register_callback(nettime.Nettime.update, frequency=14400, single_shot=False)
+periodicFetcher.register_callback(financestatus.FinanceStatus.update, frequency=3600, single_shot=False)
+periodicFetcher.register_callback(carddav.sync_background, frequency=3600, single_shot=False)
 socketio.start_background_task(periodicFetcher.run)
 
 
@@ -32,7 +32,6 @@ def handle_message(message):
 
 @app.route("/")
 def hello():
-  socketio.send("Hello")
   return "Hello World!"
 
 @app.route("/addressbook")
@@ -95,7 +94,7 @@ def get_financestatus_days(days):
 
 @app.route("/newtab")
 def get_newtab():
-  return render_template('newtab.html', meteoschweizDietikon=MeteoSchweiz().get_buffered('895300'), meteoschweizEth=MeteoSchweiz().get_buffered('804900'))
+  return render_template('newtab.html', meteoschweizDietikon=MeteoSchweiz().get_buffered('895300'), meteoschweizEth=MeteoSchweiz().get_buffered('804900'), transferwise=Transferwise().get_buffered(), nettime=nettime.Nettime().get_buffered())
 
 @app.route("/nettime")
 def get_nettime():

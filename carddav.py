@@ -19,15 +19,12 @@ def _do_sync_background():
     c.sync()
   except Exception as e:
     print("Exception while syncing CardDav. Exception: ", e)
-    return 30
+    return False
   print("{}: Successfully synced CardDav in the background".format(datetime.now()))
-  return 3600
+  return True
 
 def sync_background(socketio):
-  socketio.sleep(30)
-  sleep = tpool.execute(_do_sync_background)
-  socketio.sleep(sleep)
-  socketio.start_background_task(sync_background, socketio)
+  return tpool.execute(_do_sync_background)
 
 
 class CardDav(object):

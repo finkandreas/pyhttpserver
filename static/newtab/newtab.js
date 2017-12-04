@@ -41,6 +41,20 @@ $(function() {
 
 
 function updateWeather(ctx, data) {
+  var annotation = {
+    annotations: [{
+      type: "line",
+      mode: "vertical",
+      scaleID: "time-x-axis",
+      value: data.current_time_string,
+      borderColor: "black",
+      label: {
+        content: data.current_time_string,
+        enabled: true,
+        position: "top"
+      }
+    }]
+  };
   var ctx = document.getElementById(ctx).getContext('2d');
   var timeHours = ['00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00'];
   var precipitationData = data.rainfall.map(function(el, idx) { return {t: timeHours[idx], y: el[1]}; });
@@ -69,6 +83,7 @@ function updateWeather(ctx, data) {
       legend: {
         display: false
       },
+      annotation: data.current_time_string ? annotation : {},
       scales: {
         yAxes: [{
           id: 'precipitation-y-axis',
@@ -76,6 +91,7 @@ function updateWeather(ctx, data) {
           position: 'right',
           ticks: {
             max: 6,
+            fontColor: 'rgba(0,255,255,1)',
           },
           gridLines: {
             display: false
@@ -86,6 +102,7 @@ function updateWeather(ctx, data) {
           ticks: {
             min: Math.floor(tempMin)-1,
             max: Math.ceil(tempMax)+1,
+            fontColor: 'rgba(255,0,0,1)',
           },
           gridLines: {
             display: true

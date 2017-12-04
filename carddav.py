@@ -13,7 +13,7 @@ from misc import *
 import os
 import re
 
-def _do_sync_background():
+def sync(socketio):
   try:
     c = CardDav()
     c.sync()
@@ -22,9 +22,6 @@ def _do_sync_background():
     return False
   print("{}: Successfully synced CardDav in the background".format(datetime.now()))
   return True
-
-def sync_background(socketio):
-  return tpool.execute(_do_sync_background)
 
 
 class CardDav(object):

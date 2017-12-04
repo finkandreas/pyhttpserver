@@ -17,24 +17,20 @@ class Nettime(object):
     pass
 
   def update(socketio):
-    def do_update():
-      newStatus = ""
-      try:
-        newStatus = Nettime().get()
-      except RequestException as e:
-        print("RequestException while trying to fetch Transferwise. Exception: ", e)
-      except Exception as e:
-        print("Exception while trying to fetch Transferwise: ", e)
-        newStatus = Nettime().get_buffered()
-      return newStatus
-
-    newStatus = tpool.execute(do_update)
-    if (newStatus):
+    newStatus = ""
+    try:
+      newStatus = Nettime().get()
+    except RequestException as e:
+      print("RequestException while trying to fetch Nettime. Exception: ", e)
+      return False
+    except Exception as e:
+      print("Exception while trying to fetch Nettime: ", e)
+      newStatus = Nettime().get_buffered()
+    if newStatus:
       keyvalstore.KeyValueStore().set("nettime.status".format(zip), newStatus)
       socketio.emit('nettime', {'data': newStatus})
       print("{}: Updated Nettime".format(datetime.datetime.now()))
-      return True
-    return False
+    return True
 
   def get_buffered(self):
     return keyvalstore.KeyValueStore().get("nettime.status")

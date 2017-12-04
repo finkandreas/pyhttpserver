@@ -22,7 +22,7 @@ periodicFetcher.register_callback(MeteoSchweiz.update, frequency=1800, single_sh
 periodicFetcher.register_callback(Transferwise.update, frequency=600, single_shot=False)
 periodicFetcher.register_callback(nettime.Nettime.update, frequency=14400, single_shot=False)
 periodicFetcher.register_callback(financestatus.FinanceStatus.update, frequency=3600, single_shot=False)
-periodicFetcher.register_callback(carddav.sync_background, frequency=3600, single_shot=False)
+periodicFetcher.register_callback(carddav.sync, frequency=3600, single_shot=False)
 socketio.start_background_task(periodicFetcher.run)
 
 

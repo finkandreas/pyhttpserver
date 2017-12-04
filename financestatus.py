@@ -10,21 +10,18 @@ class FinanceStatus(object):
     pass
 
   def update(socketio):
-    def do_update():
-      newStatus = []
-      try:
-        newStatus = dkb.get(3)+comdirect.get(3)
-      except RequestException as e:
-        print("RequestException while trying to fetch the finance status. Exception: ", e)
-      except Exception as e:
-        print("Exception while trying to fetch the finance status: ", e)
-        newStatus = FinanceStatus().get_buffered() # set it to the old status so we do not retry in 30 seconds, the problem is probably sth completely different (e.g. parsing issues)
-      return newStatus
-
-    newStatus = tpool.execute(do_update)
+    newStatus = []
+    try:
+      newStatus = dkb.get(3)+comdirect.get(3)
+    except RequestException as e:
+      print("RequestException while trying to fetch the finance status. Exception: ", e)
+      return False
+    except Exception as e:
+      print("Exception while trying to fetch the finance status: ", e)
+      newStatus = FinanceStatus().get_buffered() # set it to the old status so we do not retry in 30 seconds, the problem is probably sth completely different (e.g. parsing issues)
     oldStatus = FinanceStatus().get_buffered()
     if (newStatus): keyvalstore.KeyValueStore().set("financestatus.status3", newStatus)
-    if oldStatus != newStatus:
+    if newStatus and oldStatus != newStatus:
       socketio.send("{}: finance status changed".format(datetime.datetime.now()))
       print("Finance status changed")
     print("{}: Updated finance status".format(datetime.datetime.now()))

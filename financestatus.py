@@ -15,18 +15,18 @@ class FinanceStatus(object):
       newStatus = dkb.get(3)+comdirect.get(3)
     except RequestException as e:
       print("RequestException while trying to fetch the finance status. Exception: ", e)
-      return False
+      return (False, {})
     except Exception as e:
       print("Exception while trying to fetch the finance status: ", e)
       newStatus = FinanceStatus().get_buffered() # set it to the old status so we do not retry in 30 seconds, the problem is probably sth completely different (e.g. parsing issues)
     oldStatus = FinanceStatus().get_buffered()
     if (newStatus): keyvalstore.KeyValueStore().set("financestatus.status3", newStatus)
     if newStatus and oldStatus != newStatus:
-      socketio.sleep(30)
-      socketio.send("{}: finance status changed".format(datetime.datetime.now()))
       print("Finance status changed")
+      return (True, {'channel': 'message', 'data': newStatus})
     print("{}: Updated finance status".format(datetime.datetime.now()))
-    return True
+    return (True, {})
+
 
   def get_buffered(self):
     return keyvalstore.KeyValueStore().get("financestatus.status3")

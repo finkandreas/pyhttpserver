@@ -19,9 +19,9 @@ def sync(socketio):
     c.sync()
   except Exception as e:
     print("Exception while syncing CardDav. Exception: ", e)
-    return False
+    return (False, {})
   print("{}: Successfully synced CardDav in the background".format(datetime.now()))
-  return True
+  return (True, {})
 
 
 class CardDav(object):
@@ -64,7 +64,6 @@ class CardDav(object):
 
 
   def sync(self, socketio=None):
-    if socketio: socketio.sleep(3)
     self.sync_collections()
     # sync only subsribed collections...
     for collectionRow in self.db(self.db.collections.subscribed == True).select():

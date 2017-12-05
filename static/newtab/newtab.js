@@ -142,6 +142,11 @@ function updateTransferwise(newValue) {
 }
 
 
+function updateNettime(newValue) {
+  $('#nettime_status').html(' ('+newValue+')');
+}
+
+
 function buildWebsite() {
   data = localStorage2.data;
   pw = localStorage2.pw;
@@ -187,7 +192,7 @@ function buildWebsite() {
   });
 
   if (typeof startupData !== "undefined") {
-    $('#nettime_status').html(' ('+startupData.nettime+')');
+    updateNettime(startupData.nettime)
     updateTransferwise(startupData.transferwise);
     buildWeather();
   }

@@ -30,21 +30,27 @@ class PeriodicFetcher(object):
     self.callbacks.append( (callback_fct, frequency, single_shot, datetime.datetime.now()-delta, kwargs) )
 
   def run(self):
+    def _do_run_in_thread(callback_fct, socketio, **kwargs):
+      success, socketData = tpool.execute(callback_fct, socketio, **kwargs)
+      if socketData:
+        socketio.sleep(60)
+        print("Success={}, sending socketData={}".format(success, socketData))
+        socketio.emit(socketData['channel'], socketData['data'])
+
     new_callbacks = []
     now = datetime.datetime.now()
     for callback_fct, frequency, single_shot, last_run, kwargs in self.callbacks:
-      kwargs['socketio'] = self.socketio
       if (now-last_run).total_seconds() > frequency:
         # We need to run  the callback function
-        print("Spawning thread to run ", callback_fct)
-        spawnedThread = greenthread.spawn(tpool.execute, callback_fct, **kwargs)
+        print("{}: Spawning thread to run {}".format(datetime.datetime.now(), callback_fct))
+        spawnedThread = greenthread.spawn(_do_run_in_thread, callback_fct, self.socketio, **kwargs)
         last_run = now
       if not single_shot:
         new_callbacks.append( (callback_fct, frequency, single_shot, last_run, kwargs) )
     self.callbacks = new_callbacks
 
     self.socketio.sleep(self.min_interval)
-    print("Woke up after socketio.sleep")
+    print("{}: Woke up after socketio.sleep".format(datetime.datetime.now()))
     self.socketio.start_background_task(self.run)
 
 
@@ -53,22 +59,22 @@ class MeteoSchweiz(object):
     pass
 
   def update(socketio):
+    ret = []
     for zip in ['895300', '804900']:
       newStatus = ""
       try:
         newStatus = MeteoSchweiz().get(zip)
       except RequestException as e:
         print("RequestException while trying to fetch MeteoSchweiz. Exception: ", e)
-        return False
+        return (False, {})
       except Exception as e:
         print("Exception while trying to fetch MeteoSchweiz: ", e)
         newStatus = MeteoSchweiz().get_buffered(zip)
       if (newStatus):
         keyvalstore.KeyValueStore().set("meteoschweiz.{}.fullJson".format(zip), newStatus)
-        socketio.sleep(30)
-        socketio.emit('weather', {'zip': zip, 'data': newStatus})
+        ret.append({'zip': zip, 'data': newStatus})
     print("{}: Updated MeteoSchweiz".format(datetime.datetime.now()))
-    return True
+    return (True, {'channel': 'weather', 'data': ret})
 
   def get_buffered(self, zip='895300'):
     return keyvalstore.KeyValueStore().get("meteoschweiz.{}.fullJson".format(zip))
@@ -96,16 +102,14 @@ class Transferwise(object):
       newStatus = Transferwise().get()
     except RequestException as e:
       print("RequestException while trying to fetch Transferwise. Exception: ", e)
-      return False
+      return (False, {})
     except Exception as e:
       print("Exception while trying to fetch Transferwise: ", e)
       newStatus = Transferwise().get_buffered()
     if newStatus:
       keyvalstore.KeyValueStore().set("transferwise.rate", newStatus)
-      socketio.sleep(30)
-      socketio.emit('transferwise', {'data': newStatus})
       print("{}: Updated Transferwise".format(datetime.datetime.now()))
-    return True
+    return (True, {'channel': 'transferwise', 'data': {'data': newStatus}})
 
   def get_buffered(self):
     return keyvalstore.KeyValueStore().get("transferwise.rate")

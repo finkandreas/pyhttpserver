@@ -22,16 +22,14 @@ class Nettime(object):
       newStatus = Nettime().get()
     except RequestException as e:
       print("RequestException while trying to fetch Nettime. Exception: ", e)
-      return False
+      return (False, {})
     except Exception as e:
       print("Exception while trying to fetch Nettime: ", e)
       newStatus = Nettime().get_buffered()
     if newStatus:
       keyvalstore.KeyValueStore().set("nettime.status".format(zip), newStatus)
-      socketio.sleep(30)
-      socketio.emit('nettime', {'data': newStatus})
       print("{}: Updated Nettime".format(datetime.datetime.now()))
-    return True
+    return (True, {'channel': 'nettime', 'data': {'data': newStatus}})
 
   def get_buffered(self):
     return keyvalstore.KeyValueStore().get("nettime.status")

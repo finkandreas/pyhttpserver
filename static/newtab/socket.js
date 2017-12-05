@@ -21,13 +21,17 @@ $(function() {
     })
 
     socket.on('weather', function(data) {
-      console.log("Received 'weather' event", data);
-      var weatherData = JSON.parse(data.data);
-      updateWeather('weatherChart'+data.zip, weatherData[0]);
-      updateWeather('weatherChart'+data.zip+'Tomorrow', weatherData[1]);
+      data.forEach(function(data) {
+        var weatherData = JSON.parse(data.data);
+        updateWeather('weatherChart'+data.zip, weatherData[0]);
+        updateWeather('weatherChart'+data.zip+'Tomorrow', weatherData[1]);
+      });
     });
     socket.on('transferwise', function(data) {
       updateTransferwise(data.data);
+    });
+    socket.on('nettime', function(data) {
+      updateNettime(data.data);
     });
   }, 60*1000)
 })

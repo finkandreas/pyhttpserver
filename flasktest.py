@@ -15,7 +15,7 @@ app.config['BOOTSTRAP_SERVE_LOCAL'] = True
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 app.config['SECRET_KEY'] = 'secret!'
 Bootstrap(app)
-socketio = SocketIO(app, async_mode='threading')
+socketio = SocketIO(app)
 
 periodicFetcher = PeriodicFetcher(socketio)
 periodicFetcher.register_callback(MeteoSchweiz.update, frequency=1800, single_shot=False)
@@ -24,7 +24,6 @@ periodicFetcher.register_callback(nettime.Nettime.update, frequency=14400, singl
 periodicFetcher.register_callback(financestatus.FinanceStatus.update, frequency=3600, single_shot=False)
 periodicFetcher.register_callback(carddav.sync, frequency=3600, single_shot=False)
 socketio.start_background_task(periodicFetcher.run)
-
 
 @socketio.on('message')
 def handle_message(message):
@@ -104,4 +103,4 @@ def get_nettime():
 if __name__ == "__main__":
   while True:
     print("Starting server...")
-    socketio.run(app, host="localhost", port=8080, threaded=True)
+    socketio.run(app, host="localhost", port=8080)

@@ -69,7 +69,7 @@ class CalDav(object):
 
 
   def sync(self, socketio=None):
-    if socketio: socketio.sleep(3)
+    #~ if socketio: socketio.sleep(3)
     self.sync_collections()
     # sync only subsribed collections...
     for collectionRow in self.db(self.db.collections.subscribed == True).select():

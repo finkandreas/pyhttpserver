@@ -37,6 +37,19 @@ $(function() {
       });
     }
   };
+
+  $('body').keypress(function(data) {
+    if (data.charCode == 105 && data.ctrlKey) {
+      $('#weatherParent').toggle();
+      if ($('#weatherParent').is(':visible')) {
+        $.get('/newtab/info', function(data) {
+          updateFromInfo(data);
+        });
+      }
+      data.preventDefault();
+      data.stopPropagation();
+    }
+  });
 });
 
 
@@ -129,11 +142,13 @@ function updateWeather(ctx, data) {
 }
 
 
-function buildWeather() {
-  updateWeather('weatherChart895300', startupData.meteoschweiz895300[0]);
-  updateWeather('weatherChart895300Tomorrow', startupData.meteoschweiz895300[1]);
-  updateWeather('weatherChart804900', startupData.meteoschweiz804900[0]);
-  updateWeather('weatherChart804900Tomorrow', startupData.meteoschweiz804900[1]);
+function updateFromInfo(data) {
+  updateNettime(data.nettime)
+  updateTransferwise(data.transferwise);
+  updateWeather('weatherChart895300', data.meteoschweiz895300[0]);
+  updateWeather('weatherChart895300Tomorrow', data.meteoschweiz895300[1]);
+  updateWeather('weatherChart804900', data.meteoschweiz804900[0]);
+  updateWeather('weatherChart804900Tomorrow', data.meteoschweiz804900[1]);
 }
 
 
@@ -192,9 +207,8 @@ function buildWebsite() {
   });
 
   if (typeof startupData !== "undefined") {
-    updateNettime(startupData.nettime)
-    updateTransferwise(startupData.transferwise);
-    buildWeather();
+    $('#weatherParent').show();
+    updateFromInfo(startupData);
   }
 }
 

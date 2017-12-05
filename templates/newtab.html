@@ -42,12 +42,7 @@
     <link rel="stylesheet" href="/static/newtab/3rdparty/prettify.css" type="text/css" />
     <link rel="stylesheet" href="/static/newtab/main.css" type="text/css" />
     <script type="text/javascript" charset="utf-8">
-      var startupData = {
-        meteoschweiz895300: JSON.parse('{{ meteoschweizDietikon|safe }}'),
-        meteoschweiz804900: JSON.parse('{{ meteoschweizEth|safe }}'),
-        transferwise: '{{ transferwise }}',
-        nettime: '{{ nettime }}',
-      }
+      var startupData = JSON.parse('{{ startupData|safe }}');
     </script>
 {% endblock %}
 

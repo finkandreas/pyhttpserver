@@ -34,7 +34,7 @@ class PeriodicFetcher(object):
       success, socketData = tpool.execute(callback_fct, socketio, **kwargs)
       if socketData:
         socketio.sleep(60)
-        print("Success={}, sending socketData={}".format(success, socketData))
+        #~ print("Success={}, sending socketData={}".format(success, socketData))
         socketio.emit(socketData['channel'], socketData['data'])
 
     new_callbacks = []

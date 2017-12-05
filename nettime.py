@@ -28,6 +28,7 @@ class Nettime(object):
       newStatus = Nettime().get_buffered()
     if newStatus:
       keyvalstore.KeyValueStore().set("nettime.status".format(zip), newStatus)
+      socketio.sleep(30)
       socketio.emit('nettime', {'data': newStatus})
       print("{}: Updated Nettime".format(datetime.datetime.now()))
     return True

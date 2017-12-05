@@ -22,6 +22,7 @@ class FinanceStatus(object):
     oldStatus = FinanceStatus().get_buffered()
     if (newStatus): keyvalstore.KeyValueStore().set("financestatus.status3", newStatus)
     if newStatus and oldStatus != newStatus:
+      socketio.sleep(30)
       socketio.send("{}: finance status changed".format(datetime.datetime.now()))
       print("Finance status changed")
     print("{}: Updated finance status".format(datetime.datetime.now()))

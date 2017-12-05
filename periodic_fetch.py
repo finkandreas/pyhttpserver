@@ -65,6 +65,7 @@ class MeteoSchweiz(object):
         newStatus = MeteoSchweiz().get_buffered(zip)
       if (newStatus):
         keyvalstore.KeyValueStore().set("meteoschweiz.{}.fullJson".format(zip), newStatus)
+        socketio.sleep(30)
         socketio.emit('weather', {'zip': zip, 'data': newStatus})
     print("{}: Updated MeteoSchweiz".format(datetime.datetime.now()))
     return True
@@ -101,6 +102,7 @@ class Transferwise(object):
       newStatus = Transferwise().get_buffered()
     if newStatus:
       keyvalstore.KeyValueStore().set("transferwise.rate", newStatus)
+      socketio.sleep(30)
       socketio.emit('transferwise', {'data': newStatus})
       print("{}: Updated Transferwise".format(datetime.datetime.now()))
     return True

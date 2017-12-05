@@ -1,7 +1,7 @@
 $(function() {
   // connect to the websocket only 60 seconds after opening, thus stopping to connect for shortly opened new tabs
   setTimeout(function() {
-    var socket = io.connect('http://' + document.domain + ':' + document.location.port, {transports: ['websocket']})
+    var socket = io.connect('http://' + document.domain + ':' + document.location.port)
     // var socket = io.connect('http://' + document.domain + ':' + document.location.port + '/NAMESPACE')
 
     // events sent with socketio.send(...) will all be matched with this event handler

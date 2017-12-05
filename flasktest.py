@@ -15,7 +15,7 @@ app.config['BOOTSTRAP_SERVE_LOCAL'] = True
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 app.config['SECRET_KEY'] = 'secret!'
 Bootstrap(app)
-socketio = SocketIO(app)
+socketio = SocketIO(app, async_mode='threading')
 
 periodicFetcher = PeriodicFetcher(socketio)
 periodicFetcher.register_callback(MeteoSchweiz.update, frequency=1800, single_shot=False)
@@ -32,6 +32,7 @@ def handle_message(message):
 
 @app.route("/")
 def hello():
+  socketio.send('hello')
   return "Hello World!"
 
 @app.route("/addressbook")
@@ -103,4 +104,4 @@ def get_nettime():
 if __name__ == "__main__":
   while True:
     print("Starting server...")
-    socketio.run(app, host="localhost", port=8080)
+    socketio.run(app, host="localhost", port=8080, threaded=True)

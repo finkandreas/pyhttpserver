@@ -53,7 +53,9 @@ $(function() {
 });
 
 
-function updateWeather(ctx, data) {
+function updateWeather(ctxName, data) {
+  window.charts = window.charts || {};
+  if (ctxName in window.charts) { window.charts[ctxName].destroy(); }
   var annotation = {
     annotations: [{
       type: "line",
@@ -68,13 +70,12 @@ function updateWeather(ctx, data) {
       }
     }]
   };
-  var ctx = document.getElementById(ctx).getContext('2d');
   var timeHours = ['00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00'];
   var precipitationData = data.rainfall.map(function(el, idx) { return {t: timeHours[idx], y: el[1]}; });
   var temperatureData = data.temperature.map(function(el, idx) { return {t: timeHours[idx], y: el[1]}; });
   var tempMin = data.temperature.reduce(function(min, el) { return el[1]<min?el[1]:min; }, data.temperature[0][1]);
   var tempMax = data.temperature.reduce(function(max, el) { return el[1]>max?el[1]:max; }, data.temperature[0][1]);
-  var myChart = new Chart(ctx, {
+  window.charts[ctxName] = new Chart(document.getElementById(ctxName).getContext('2d'), {
     type: 'bar',
     data: {
       datasets: [{

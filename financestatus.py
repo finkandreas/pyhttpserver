@@ -22,8 +22,8 @@ class FinanceStatus(object):
     oldStatus = FinanceStatus().get_buffered()
     if (newStatus): keyvalstore.KeyValueStore().set("financestatus.status3", newStatus)
     if newStatus and oldStatus != newStatus:
-      print("Finance status changed")
-      return (True, {'channel': 'message', 'data': newStatus})
+      print("{}: Finance status changed".format(datetime.datetime.now()))
+      return (True, {'channel': 'message', 'data': "{}: Finance status changed".format(datetime.datetime.now())})
     print("{}: Updated finance status".format(datetime.datetime.now()))
     return (True, {})
 

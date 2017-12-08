@@ -61,7 +61,7 @@ function updateWeather(ctxName, data) {
       type: "line",
       mode: "vertical",
       scaleID: "time-x-axis",
-      value: data.current_time_string,
+      value: data.current_time,
       borderColor: "black",
       label: {
         content: data.current_time_string,
@@ -70,9 +70,9 @@ function updateWeather(ctxName, data) {
       }
     }]
   };
-  var timeHours = ['00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00'];
-  var precipitationData = data.rainfall.map(function(el, idx) { return {t: timeHours[idx], y: el[1]}; });
-  var temperatureData = data.temperature.map(function(el, idx) { return {t: timeHours[idx], y: el[1]}; });
+  var precipitationData = data.rainfall.map(function(el, idx) { return {x: el[0], y: el[1]}; });
+  var temperatureData = data.temperature.map(function(el, idx) { return {x: el[0], y: el[1]}; });
+  console.log(precipitationData, temperatureData)
   var tempMin = data.temperature.reduce(function(min, el) { return el[1]<min?el[1]:min; }, data.temperature[0][1]);
   var tempMax = data.temperature.reduce(function(max, el) { return el[1]>max?el[1]:max; }, data.temperature[0][1]);
   window.charts[ctxName] = new Chart(document.getElementById(ctxName).getContext('2d'), {
@@ -84,7 +84,7 @@ function updateWeather(ctxName, data) {
         borderColor: 'rgba(255, 0, 0, 1)',
         backgroundColor: 'rgba(0,0,0,0)',
         type: 'line',
-        yAxisID: 'temperature-y-axis'
+        yAxisID: 'temperature-y-axis',
       }, {
         label: 'Precipitation',
         data: precipitationData,
@@ -114,9 +114,10 @@ function updateWeather(ctxName, data) {
           id: 'temperature-y-axis',
           type: 'linear',
           ticks: {
-            min: Math.floor(tempMin)-1,
-            max: Math.ceil(tempMax)+1,
+            min: Math.ceil(tempMin)-1,
+            max: Math.floor(tempMax)+1,
             fontColor: 'rgba(255,0,0,1)',
+            callback: function(value, index, values) { return Math.floor(value)==value ? value : null; },
           },
           gridLines: {
             display: true
@@ -128,10 +129,12 @@ function updateWeather(ctxName, data) {
           position: 'bottom',
           time: {
             unit: 'hour',
-            parser: 'HH:mm',
+            //~ parser: 'HH:mm',
+            parser: 'x',
             displayFormats: {
               hour: 'HH:mm'
-            }
+            },
+            tooltipFormat: 'HH:mm',
           },
           gridLines: {
             display: false
@@ -146,10 +149,12 @@ function updateWeather(ctxName, data) {
 function updateFromInfo(data) {
   updateNettime(data.nettime)
   updateTransferwise(data.transferwise);
+  data.meteoschweiz895300[0].rainfall = data.meteoschweiz895300[0].rainfall.concat(data.meteoschweiz895300[1].rainfall);
+  data.meteoschweiz895300[0].temperature = data.meteoschweiz895300[0].temperature.concat(data.meteoschweiz895300[1].temperature);
+  data.meteoschweiz804900[0].rainfall = data.meteoschweiz804900[0].rainfall.concat(data.meteoschweiz804900[1].rainfall);
+  data.meteoschweiz804900[0].temperature = data.meteoschweiz804900[0].temperature.concat(data.meteoschweiz804900[1].temperature);
   updateWeather('weatherChart895300', data.meteoschweiz895300[0]);
-  updateWeather('weatherChart895300Tomorrow', data.meteoschweiz895300[1]);
   updateWeather('weatherChart804900', data.meteoschweiz804900[0]);
-  updateWeather('weatherChart804900Tomorrow', data.meteoschweiz804900[1]);
 }
 
 

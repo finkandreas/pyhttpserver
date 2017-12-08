@@ -23,8 +23,9 @@ $(function() {
     socket.on('weather', function(data) {
       data.forEach(function(data) {
         var weatherData = JSON.parse(data.data);
+        weatherData[0].rainfall = weatherData[0].rainfall.concat(weatherData[1].rainfall);
+        weatherData[0].temperature = weatherData[0].temperature.concat(weatherData[1].temperature);
         updateWeather('weatherChart'+data.zip, weatherData[0]);
-        updateWeather('weatherChart'+data.zip+'Tomorrow', weatherData[1]);
       });
     });
     socket.on('transferwise', function(data) {

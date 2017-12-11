@@ -30,13 +30,12 @@ def get(delta=9):
   payload['javax.faces.ViewState'] = ""
   doc = etree.HTML(response.content)
   for input in doc.xpath("//input"):
-    if input.get("name") == 'javax.faces.ViewState': payload[input.get("name")] = input.get("value")
+    if input.get("name") in frozenset(['javax.faces.ViewState', 'csfCsrfToken']): payload[input.get("name")] = input.get("value")
 
   # login to server and be forwarded to the status page
   response = session.post(postUrl, data=payload)
   response.raise_for_status()
-
-  #~ open("response", "wb").write(response.content)
+  #~ open("comdirect.resp1", "wb").write(response.content)
 
   # get the account balance (there seems to be a bug in comdirect, that you do not see the account balance when you look for specific dates)
   doc = etree.HTML(response.content)
@@ -49,8 +48,7 @@ def get(delta=9):
   payload2 ='j_idt9-filterForm=j_idt9-filterForm&j_idt9-filterForm-produktauswahl=Alle%20Konten&j_idt9-filterForm-intervall=30&j_idt9-filterForm-zeitraum=BEREICH&j_idt9-filterForm-von={}&j_idt9-filterForm-bis={}&j_idt9-filterForm-erweiterteSuche=false&j_idt9-filterForm-suchbegriff=&j_idt9-filterForm-betragVon=&j_idt9-filterForm-betragBis=&j_idt9-filterForm-vorgang=Alle%20Vorg%C3%A4nge&j_idt9-filterForm-umsatzTyp=ALLE&javax.faces.ViewState={}&javax.faces.RenderKitId=CIF_HTML_RW&javax.faces.source=j_idt9-filterForm-j_idt67&javax.faces.partial.event=click&javax.faces.partial.execute=j_idt9-filterForm-j_idt67%20j_idt9-filterForm&javax.faces.partial.render=0&event=click&propagate=true&syncIE=false&serializeForm=&extraParams=&dataType=xml&beforeSend=function()%7B%7D&complete=function()%7B%7D&sendProcessIdOnly=false&ignoreEmptyFields=false&onlyOnce=false&executionTimestamp=null&onLoad=false&regexFilter=&refocus=false&source=j_idt9-filterForm-j_idt67&dialogId=j_idt9-filterForm-pinEingabeDialog&javax.faces.behavior.event=click&javax.faces.partial.ajax=true'.format(start,end, doc.cssselect('input[name="javax.faces.ViewState"]')[0].get('value'))
   response = session.post(response.url, data=payload2, headers={'Content-Type':'application/x-www-form-urlencoded'})
   response.raise_for_status()
-
-  #~ open("response", "wb").write(response.content)
+  #~ open("comdirect.resp2", "wb").write(response.content)
 
   doc = etree.HTML(response.content)
   umsatzliste = doc.cssselect("tr.table__row.table__row--details-trigger")

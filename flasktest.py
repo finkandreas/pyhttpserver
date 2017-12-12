@@ -7,6 +7,7 @@ import carddav
 import common
 import financestatus
 import keyring
+import keyvalstore
 import nettime
 from periodic_fetch import PeriodicFetcher, MeteoSchweiz, Transferwise
 
@@ -83,6 +84,10 @@ def get_dav_collections():
   carddavCols = carddav.CardDav().get_collections(user=request.args.get("user"), pw=request.args.get("pass"), url=request.args.get("url"))
   caldavCols = caldav.CalDav().get_collections(user=request.args.get("user"), pw=request.args.get("pass"), url=request.args.get("url"))
   return json.jsonify(dict(carddav=carddavCols, caldav=caldavCols))
+
+@app.route("/kvs")
+def get_value():
+  return str(keyvalstore.KeyValueStore().get(request.args['key']))
 
 @app.route("/dkb")
 def get_financestatus():

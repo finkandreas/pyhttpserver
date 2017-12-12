@@ -126,4 +126,29 @@ class Transferwise(object):
 
     response = session.get('https://transferwise.com/api/v1/payment/calculate?amount=10000&amountCurrency=source&getNoticeMessages=true&hasDiscount=false&isFixedRate=false&isGuaranteedFixedTarget=false&payInMethod=ADYEN_DEBIT&sourceCurrency=EUR&targetCurrency=CHF', headers=headers)
     response.raise_for_status()
-    return json.loads(response.content.decode('utf-8'))['transferwiseRate']
+    transferwise = json.loads(response.content.decode('utf-8'))['transferwiseRate']/1.005
+
+    response_currencyfair = session.get('https://app.currencyfair.com/calculator/quicktrade-quote?&mode=SELL&depositCurrency=EUR&beneficiaryCurrency=CHF&amount=10000')
+    response_currencyfair.raise_for_status()
+    currencyfair = json.loads(response_currencyfair.content.decode('utf-8'))['quote']['estimatesByTransferType']['1']['estimatedAmount']/10000
+
+    response_xendpay = session.get('https://secure.xendpay.com/quote/api/get-quote?paymentCountryCode=DE&paymentCurrencyCode=EUR&deliveryCountryCode=CH&deliveryCurrencyCode=CHF&deliveryMethodCode=earthport-api&amount=10000.00&amountCurrencyCode=EUR&amountDeductFees=false&discretionalFee=&promoCode=')
+    response_xendpay.raise_for_status()
+    xendpay = float(json.loads(response_xendpay.content.decode('utf-8'))['data']['rate'])
+
+    kvs = keyvalstore.KeyValueStore()
+    timestamp = int(datetime.datetime.now().timestamp())
+    twHistory = kvs.get('transferwise.history', [])
+    cfHistory = kvs.get('currencyfair.history', [])
+    xpHistory = kvs.get('xendpay.history', [])
+    twHistory.append((timestamp, transferwise))
+    cfHistory.append((timestamp, currencyfair))
+    xpHistory.append((timestamp, xendpay))
+    twHistory = twHistory[:100]
+    cfHistory = cfHistory[:100]
+    xpHistory = xpHistory[:100]
+    kvs.set('transferwise.history', twHistory)
+    kvs.set('currencyfair.history', cfHistory)
+    kvs.set('xendpay.history', xpHistory)
+
+    return "{:.4f} - {:.4f} - {:.4f}".format(transferwise, currencyfair, xendpay)

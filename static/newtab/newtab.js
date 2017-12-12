@@ -72,7 +72,6 @@ function updateWeather(ctxName, data) {
   };
   var precipitationData = data.rainfall.map(function(el, idx) { return {x: el[0], y: el[1]}; });
   var temperatureData = data.temperature.map(function(el, idx) { return {x: el[0], y: el[1]}; });
-  console.log(precipitationData, temperatureData)
   var tempMin = data.temperature.reduce(function(min, el) { return el[1]<min?el[1]:min; }, data.temperature[0][1]);
   var tempMax = data.temperature.reduce(function(max, el) { return el[1]>max?el[1]:max; }, data.temperature[0][1]);
   window.charts[ctxName] = new Chart(document.getElementById(ctxName).getContext('2d'), {
@@ -149,10 +148,15 @@ function updateWeather(ctxName, data) {
 function updateFromInfo(data) {
   updateNettime(data.nettime)
   updateTransferwise(data.transferwise);
-  data.meteoschweiz895300[0].rainfall = data.meteoschweiz895300[0].rainfall.concat(data.meteoschweiz895300[1].rainfall);
-  data.meteoschweiz895300[0].temperature = data.meteoschweiz895300[0].temperature.concat(data.meteoschweiz895300[1].temperature);
-  data.meteoschweiz804900[0].rainfall = data.meteoschweiz804900[0].rainfall.concat(data.meteoschweiz804900[1].rainfall);
-  data.meteoschweiz804900[0].temperature = data.meteoschweiz804900[0].temperature.concat(data.meteoschweiz804900[1].temperature);
+  var nowHour = Math.max(0, (new Date(data.meteoschweiz895300[0].current_time)).getHours()-1);
+  ['meteoschweiz895300', 'meteoschweiz804900'].forEach(function(el) {
+    data[el][0].rainfall.splice(0, nowHour);
+    data[el][2].rainfall.splice(nowHour, 24-nowHour)
+    data[el][0].temperature.splice(0, nowHour);
+    data[el][2].temperature.splice(nowHour, 24-nowHour)
+    data[el][0].rainfall = data[el][0].rainfall.concat(data[el][1].rainfall, data[el][2].rainfall);
+    data[el][0].temperature = data[el][0].temperature.concat(data[el][1].temperature, data[el][2].temperature);
+  });
   updateWeather('weatherChart895300', data.meteoschweiz895300[0]);
   updateWeather('weatherChart804900', data.meteoschweiz804900[0]);
 }

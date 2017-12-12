@@ -13,6 +13,7 @@ class KeyValueStore(object):
     self.db.close()
 
   def set(self, key, value):
+    # We have to execute pure SQL statements because pydal does not support blobs as it seems
     res = self.db.executesql('SELECT value from store where key=?', placeholders=[key])
     if len(res)>0: self.db.executesql('UPDATE store SET value=? where key=?', placeholders=[pickle.dumps(value), key])
     else: self.db.executesql('INSERT INTO "store"("key","value") VALUES (?, ?)', placeholders=[key, pickle.dumps(value)])

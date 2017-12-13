@@ -99,11 +99,11 @@ def get_financestatus_days(days):
 
 @app.route("/newtab")
 def get_newtab():
-  return render_template('newtab.html', startupData=json.dumps(dict(meteoschweiz895300=json.loads(MeteoSchweiz().get_buffered('895300')), meteoschweiz804900=json.loads(MeteoSchweiz().get_buffered('804900')), transferwise=Transferwise().get_buffered(), nettime=nettime.Nettime().get_buffered())))
+  return render_template('newtab.html', startupData=json.dumps(dict(meteoschweiz=[{'zip': z, 'data': MeteoSchweiz().get_buffered(z)} for z in ('895300', '804900')], transferwise=Transferwise().get_buffered(), nettime=nettime.Nettime().get_buffered())))
 
 @app.route("/newtab/info")
 def get_newtab_info():
-  return json.jsonify(dict(meteoschweiz895300=json.loads(MeteoSchweiz().get_buffered('895300')), meteoschweiz804900=json.loads(MeteoSchweiz().get_buffered('804900')), transferwise=Transferwise().get_buffered(), nettime=nettime.Nettime().get_buffered()))
+  return json.jsonify(dict(meteoschweiz=[dict(zip=z, data=MeteoSchweiz().get_buffered(z)) for z in ('895300', '804900')], transferwise=Transferwise().get_buffered(), nettime=nettime.Nettime().get_buffered()))
 
 @app.route("/nettime")
 def get_nettime():

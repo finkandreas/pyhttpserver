@@ -42,7 +42,7 @@
     <link rel="stylesheet" href="/static/newtab/3rdparty/prettify.css" type="text/css" />
     <link rel="stylesheet" href="/static/newtab/main.css" type="text/css" />
     <script type="text/javascript" charset="utf-8">
-      var startupData = JSON.parse('{{ startupData|safe }}');
+      var startupData = {{ startupData|safe }};
     </script>
 {% endblock %}
 

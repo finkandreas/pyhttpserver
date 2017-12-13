@@ -1,7 +1,7 @@
 $(function() {
   // connect to the websocket only 60 seconds after opening, thus stopping to connect for shortly opened new tabs
   setTimeout(function() {
-    var socket = io.connect('http://' + document.domain + ':' + document.location.port)
+    var socket = io.connect('http://' + document.domain + ':' + document.location.port, {transports: ['websocket']})
     // var socket = io.connect('http://' + document.domain + ':' + document.location.port + '/NAMESPACE')
 
     // events sent with socketio.send(...) will all be matched with this event handler
@@ -20,17 +20,7 @@ $(function() {
     });
 
     socket.on('weather', function(data) {
-      data.forEach(function(data) {
-        var weatherData = JSON.parse(data.data);
-        var nowHour = Math.max(0, (new Date(data.meteoschweiz895300[0].current_time)).getHours()-1);
-        weatherData[0].rainfall.splice(0, nowHour);
-        weatherData[2].rainfall.splice(nowHour, 24-nowHour)
-        weatherData[0].temperature.splice(0, nowHour);
-        weatherData[2].temperature.splice(nowHour, 24-nowHour)
-        weatherData[0].rainfall = weatherData[0].rainfall.concat(weatherData[1].rainfall, weatherData[2].rainfall);
-        weatherData[0].temperature = weatherData[0].temperature.concat(weatherData[1].temperature, weatherData[2].temperature);
-        updateWeather('weatherChart'+data.zip, weatherData[0]);
-      });
+      updateWeather(data);
     });
     socket.on('transferwise', function(data) {
       updateTransferwise(data.data);

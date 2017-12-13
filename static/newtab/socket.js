@@ -22,6 +22,7 @@ $(function() {
     socket.on('weather', function(data) {
       data.forEach(function(data) {
         var weatherData = JSON.parse(data.data);
+        var nowHour = Math.max(0, (new Date(data.meteoschweiz895300[0].current_time)).getHours()-1);
         weatherData[0].rainfall.splice(0, nowHour);
         weatherData[2].rainfall.splice(nowHour, 24-nowHour)
         weatherData[0].temperature.splice(0, nowHour);

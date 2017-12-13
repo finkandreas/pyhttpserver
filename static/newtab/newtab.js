@@ -170,14 +170,13 @@ function updateTransferrateHistory() {
   var history = {};
   var ctxName = 'weatherChart895300';
   var updateChart = function(dataName, data) {
-    data = data.replace(/[\[() ]/g, '').split(",")
+    data = data.replace(/[\[()\] ]/g, '').split(",")
     var plotData = new Array(data.length/2);
     for (var i=0; i<data.length/2; ++i) plotData[i] = {x:Number(data[2*i]+'000'), y:Number(data[2*i+1])};
     nbrOfReceivedData += 1;
     history[dataName] = plotData;
     window.charts[ctxName].destroy();
     if (nbrOfReceivedData==3) {
-      console.log(history);
       window.charts[ctxName] = new Chart(document.getElementById(ctxName).getContext('2d'), {
         type: 'line',
         data: {

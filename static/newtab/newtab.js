@@ -184,20 +184,26 @@ function updateTransferrateHistory() {
             label: 'transferwise',
             data: history['transferwise'],
             borderColor: 'rgba(255, 0, 0, 1)',
-            backgroundColor: 'rgba(0,0,0,0)',
           }, {
             label: 'currencyfair',
             data: history['currencyfair'],
             borderColor: 'rgba(0, 255, 0, 1)',
-            backgroundColor: 'rgba(0,0,0,0)',
           }, {
             label: 'xendpay',
             data: history['xendpay'],
             borderColor: 'rgba(0, 0, 255, 1)',
-            backgroundColor: 'rgba(0,0,0,0)',
           }],
         },
         options: {
+          elements: {
+            point: {
+              radius: 0,
+            },
+            line: {
+              tension: 0, // disables bezier curves
+              backgroundColor: 'rgba(0,0,0,0)',
+            }
+          },
           maintainAspectRatio: false,
           legend: {
             display: true

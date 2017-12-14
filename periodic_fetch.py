@@ -144,9 +144,9 @@ class Transferwise(object):
     twHistory.append((timestamp, transferwise))
     cfHistory.append((timestamp, currencyfair))
     xpHistory.append((timestamp, xendpay))
-    twHistory = twHistory[:100]
-    cfHistory = cfHistory[:100]
-    xpHistory = xpHistory[:100]
+    twHistory = twHistory[-100:]
+    cfHistory = cfHistory[-100:]
+    xpHistory = xpHistory[-100:]
     kvs.set('transferwise.history', twHistory)
     kvs.set('currencyfair.history', cfHistory)
     kvs.set('xendpay.history', xpHistory)

@@ -17,6 +17,7 @@ from eventlet import tpool, greenthread
 class PeriodicFetcher(object):
   def __init__(self, socketio):
     self.min_interval = 600 # wake up every 10 minutes
+    self.retry_interval = 120
     self.callbacks = []
     self.socketio = socketio
 
@@ -31,11 +32,16 @@ class PeriodicFetcher(object):
 
   def run(self):
     def _do_run_in_thread(callback_fct, socketio, **kwargs):
-      success, socketData = tpool.execute(callback_fct, socketio, **kwargs)
-      if socketData:
-        socketio.sleep(60)
-        #~ print("Success={}, sending socketData={}".format(success, socketData))
-        socketio.emit(socketData['channel'], socketData['data'])
+      success = False
+      tries = 0
+      while not success and tries < 5:
+        success, socketData = tpool.execute(callback_fct, socketio, **kwargs)
+        if socketData:
+          socketio.sleep(60)
+          socketio.emit(socketData['channel'], socketData['data'])
+        if not success:
+          tries += 1
+          socketio.sleep(self.retry_interval)
 
     new_callbacks = []
     now = datetime.datetime.now()

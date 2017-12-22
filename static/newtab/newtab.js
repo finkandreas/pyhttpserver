@@ -213,6 +213,7 @@ function updateTransferrateHistory() {
               id: 'time-x-axis',
               type: 'time',
               position: 'bottom',
+              bounds: 'ticks',
               time: {
                 unit: 'hour',
                 parser: 'x',

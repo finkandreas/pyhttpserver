@@ -6,6 +6,8 @@ from lxml.html import HtmlElement
 import keyring
 import datetime
 import re
+import sys
+import traceback
 
 import keyvalstore
 import datetime
@@ -110,7 +112,7 @@ class Transferwise(object):
       print("RequestException while trying to fetch Transferwise. Exception: ", e)
       return (False, {})
     except Exception as e:
-      print("Exception while trying to fetch Transferwise: ", e)
+      print("Exception while trying to fetch Transferwise: ", e, traceback.print_tb(sys.exc_info()[2]))
       newStatus = Transferwise().get_buffered()
     if newStatus:
       keyvalstore.KeyValueStore().set("transferwise.rate", newStatus)
@@ -144,17 +146,10 @@ class Transferwise(object):
 
     kvs = keyvalstore.KeyValueStore()
     timestamp = int(datetime.datetime.now().timestamp())
-    twHistory = kvs.get('transferwise.history', [])
-    cfHistory = kvs.get('currencyfair.history', [])
-    xpHistory = kvs.get('xendpay.history', [])
-    twHistory.append((timestamp, transferwise))
-    cfHistory.append((timestamp, currencyfair))
-    xpHistory.append((timestamp, xendpay))
-    twHistory = twHistory[-100:]
-    cfHistory = cfHistory[-100:]
-    xpHistory = xpHistory[-100:]
-    kvs.set('transferwise.history', twHistory)
-    kvs.set('currencyfair.history', cfHistory)
-    kvs.set('xendpay.history', xpHistory)
+    for (value, key) in ((transferwise, "transferwise.history"), (currencyfair, "currencyfair.history"), (xendpay, "xendpay.history")):
+      (history, ver) = kvs.get_versioned(key, [])
+      history.append((timestamp, value))
+      history = history[-100:]   # keep only up to 100 history values
+      kvs.set_versioned(key, history, ver+1)
 
     return "{:.4f} - {:.4f} - {:.4f}".format(transferwise, currencyfair, xendpay)

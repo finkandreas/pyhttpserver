@@ -55,6 +55,13 @@ $(function() {
 
 function updateWeather(data) {
   window.charts = window.charts || {};
+
+  var tempMinGlobal = 100;
+  var tempMaxGlobal = -100;
+  var time;
+  var timeString;
+  var weatherDataAll = {}
+
   data.forEach(function(data) {
     var weatherData = JSON.parse(data.data);
     var nowHour = Math.max(0, (new Date(weatherData[0].current_time)).getHours()-1);
@@ -64,93 +71,112 @@ function updateWeather(data) {
     weatherData[2].temperature.splice(nowHour, 24-nowHour)
     weatherData[0].rainfall = weatherData[0].rainfall.concat(weatherData[1].rainfall, weatherData[2].rainfall);
     weatherData[0].temperature = weatherData[0].temperature.concat(weatherData[1].temperature, weatherData[2].temperature);
-    var ctxName = 'weatherChart'+data.zip;
-    if (ctxName in window.charts) { window.charts[ctxName].destroy(); }
     var precipitationData = weatherData[0].rainfall.map(function(el, idx) { return {x: el[0], y: el[1]}; });
     var temperatureData = weatherData[0].temperature.map(function(el, idx) { return {x: el[0], y: el[1]}; });
     var tempMin = weatherData[0].temperature.reduce(function(min, el) { return el[1]<min?el[1]:min; }, weatherData[0].temperature[0][1]);
     var tempMax = weatherData[0].temperature.reduce(function(max, el) { return el[1]>max?el[1]:max; }, weatherData[0].temperature[0][1]);
-    window.charts[ctxName] = new Chart(document.getElementById(ctxName).getContext('2d'), {
-      type: 'bar',
-      data: {
-        datasets: [{
-          label: 'Temperature',
-          data: temperatureData,
-          borderColor: 'rgba(255, 0, 0, 1)',
-          backgroundColor: 'rgba(0,0,0,0)',
-          type: 'line',
-          yAxisID: 'temperature-y-axis',
-        }, {
-          label: 'Precipitation',
-          data: precipitationData,
-          backgroundColor: 'rgba(0, 255, 255, 0.5)',
-          yAxisID: 'precipitation-y-axis'
-        }],
+
+    time = weatherData[0].current_time;
+    timeString = weatherData[0].current_time_string;
+    tempMinGlobal = Math.min(tempMinGlobal, tempMin);
+    tempMaxGlobal = Math.max(tempMaxGlobal, tempMax);
+    weatherDataAll[data.zip] = { temperature : temperatureData, precipitation: precipitationData };
+  });
+
+  var ctxName = 'weatherChart895300';
+  if (ctxName in window.charts) { window.charts[ctxName].destroy(); }
+  window.charts[ctxName] = new Chart(document.getElementById(ctxName).getContext('2d'), {
+    type: 'bar',
+    data: {
+      datasets: [{
+        label: 'Temperature 8953',
+        data: weatherDataAll['895300'].temperature,
+        borderColor: 'rgba(255, 0, 0, 1)',
+        backgroundColor: 'rgba(0,0,0,0)',
+        type: 'line',
+        yAxisID: 'temperature-y-axis',
+      }, {
+        label: 'Temperature 8049',
+        data: weatherDataAll['804900'].temperature,
+        borderColor: 'rgba(0, 255, 0, 1)',
+        backgroundColor: 'rgba(0,0,0,0)',
+        type: 'line',
+        yAxisID: 'temperature-y-axis',
+      }, {
+        label: 'Precipitation 8953',
+        data: weatherDataAll['895300'].precipitation,
+        backgroundColor: 'rgba(0, 255, 255, 0.5)',
+        yAxisID: 'precipitation-y-axis'
+      }, {
+        label: 'Precipitation 8049',
+        data: weatherDataAll['804900'].precipitation,
+        backgroundColor: 'rgba(0, 0, 255, 0.5)',
+        yAxisID: 'precipitation-y-axis'
+      }],
+    },
+    options: {
+      maintainAspectRatio: false,
+      //~ legend: {
+        //~ display: false
+      //~ },
+      annotation: {
+        annotations: [{
+          type: "line",
+          mode: "vertical",
+          scaleID: "time-x-axis",
+          value: time,
+          borderColor: "black",
+          label: {
+            content: timeString,
+            enabled: true,
+            position: "top"
+          }
+        }]
       },
-      options: {
-        maintainAspectRatio: false,
-        legend: {
-          display: false
-        },
-        annotation: {
-          annotations: [{
-            type: "line",
-            mode: "vertical",
-            scaleID: "time-x-axis",
-            value: weatherData[0].current_time,
-            borderColor: "black",
-            label: {
-              content: weatherData[0].current_time_string,
-              enabled: true,
-              position: "top"
-            }
-          }]
-        },
-        scales: {
-          yAxes: [{
-            id: 'precipitation-y-axis',
-            type: 'linear',
-            position: 'right',
-            ticks: {
-              max: 6,
-              fontColor: 'rgba(0,255,255,1)',
+      scales: {
+        yAxes: [{
+          id: 'precipitation-y-axis',
+          type: 'linear',
+          position: 'right',
+          ticks: {
+            max: 6,
+            fontColor: 'rgba(0,255,255,1)',
+          },
+          gridLines: {
+            display: false
+          }
+        }, {
+          id: 'temperature-y-axis',
+          type: 'linear',
+          ticks: {
+            min: Math.ceil(tempMinGlobal)-1,
+            max: Math.floor(tempMaxGlobal)+1,
+            fontColor: 'rgba(255,0,0,1)',
+            callback: function(value, index, values) { return Math.floor(value)==value ? value : null; },
+          },
+          gridLines: {
+            display: true
+          }
+        }],
+        xAxes: [{
+          id: 'time-x-axis',
+          type: 'time',
+          position: 'bottom',
+          time: {
+            unit: 'hour',
+            //~ parser: 'HH:mm',
+            parser: 'x',
+            displayFormats: {
+              hour: 'HH:mm'
             },
-            gridLines: {
-              display: false
-            }
-          }, {
-            id: 'temperature-y-axis',
-            type: 'linear',
-            ticks: {
-              min: Math.ceil(tempMin)-1,
-              max: Math.floor(tempMax)+1,
-              fontColor: 'rgba(255,0,0,1)',
-              callback: function(value, index, values) { return Math.floor(value)==value ? value : null; },
-            },
-            gridLines: {
-              display: true
-            }
-          }],
-          xAxes: [{
-            id: 'time-x-axis',
-            type: 'time',
-            position: 'bottom',
-            time: {
-              unit: 'hour',
-              //~ parser: 'HH:mm',
-              parser: 'x',
-              displayFormats: {
-                hour: 'HH:mm'
-              },
-              tooltipFormat: 'HH:mm',
-            },
-            gridLines: {
-              display: false
-            }
-          }]
-        }
+            tooltipFormat: 'HH:mm',
+          },
+          gridLines: {
+            display: false
+          }
+        }]
       }
-    });
+    }
   });
 }
 

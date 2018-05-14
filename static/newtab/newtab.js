@@ -58,12 +58,14 @@ function updateWeather(data) {
 
   var tempMinGlobal = 100;
   var tempMaxGlobal = -100;
+  var rainMaxGlobal = 6;
   var time;
   var timeString;
   var weatherDataAll = {}
 
   data.forEach(function(data) {
     var weatherData = JSON.parse(data.data);
+    console.log("weatherData=", weatherData);
     var nowHour = Math.max(0, (new Date(weatherData[0].current_time)).getHours()-1);
     weatherData[0].rainfall.splice(0, nowHour);
     weatherData[2].rainfall.splice(nowHour, 24-nowHour)
@@ -75,11 +77,13 @@ function updateWeather(data) {
     var temperatureData = weatherData[0].temperature.map(function(el, idx) { return {x: el[0], y: el[1]}; });
     var tempMin = weatherData[0].temperature.reduce(function(min, el) { return el[1]<min?el[1]:min; }, weatherData[0].temperature[0][1]);
     var tempMax = weatherData[0].temperature.reduce(function(max, el) { return el[1]>max?el[1]:max; }, weatherData[0].temperature[0][1]);
+    var rainMax = weatherData[0].rainfall.reduce(function(max, el) { return el[1]>max?el[1]:max; }, weatherData[0].rainfall[0][1]);
 
     time = weatherData[0].current_time;
     timeString = weatherData[0].current_time_string;
     tempMinGlobal = Math.min(tempMinGlobal, tempMin);
     tempMaxGlobal = Math.max(tempMaxGlobal, tempMax);
+    rainMaxGlobal = Math.max(rainMaxGlobal, Math.ceil(rainMax));
     weatherDataAll[data.zip] = { temperature : temperatureData, precipitation: precipitationData };
   });
 
@@ -139,7 +143,7 @@ function updateWeather(data) {
           type: 'linear',
           position: 'right',
           ticks: {
-            max: 6,
+            max: rainMaxGlobal,
             fontColor: 'rgba(0,255,255,1)',
           },
           gridLines: {

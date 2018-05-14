@@ -9,6 +9,11 @@ button
   padding-bottom: 10px;
 }
 
+table a {
+  margin-right: 0px;
+  padding: 0px;
+}
+
 a
 {
   margin-right: 20px;

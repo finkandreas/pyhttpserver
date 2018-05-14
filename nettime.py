@@ -38,16 +38,20 @@ class Nettime(object):
     session = requests.session()
     response = session.get('https://nettime.cscs.ch/')
     response.raise_for_status()
-    response = session.get('https://nettime.cscs.ch/infoweb/infoLog.asp')
+    response = session.get('https://nettime.cscs.ch/infoLog.asp')
     response.raise_for_status()
     pw = keyringData = keyring.DbusKeyring().FindItem({'claws-user': 'anfink'})[1]
     payload = dict(user="anfink", password=pw)
-    response = session.post('https://nettime.cscs.ch/infoweb/main/infoCtrlLog.asp', data=payload)
+    response = session.post('https://nettime.cscs.ch/main/infoCtrlLog.asp', data=payload)
     response.raise_for_status()
-    response = session.get('https://nettime.cscs.ch/infoweb/main/infoMenu-New.asp?idMnu=03')
+    response = session.get('https://nettime.cscs.ch/main/infoMenu-New.asp?idMnu=03')
     response.raise_for_status()
-    response = session.get('https://nettime.cscs.ch/infoweb/HolidayProg/infoHoliday.asp')
+    response = session.get('https://nettime.cscs.ch/HolidayProg/infoHoliday.asp')
     response.raise_for_status()
     doc = etree.HTML(response.content)
     matched = doc.cssselect("table tr table tr td:last-child")
     return matched[-1].text.strip()
+
+
+if __name__ == '__main__':
+  print(Nettime().get())

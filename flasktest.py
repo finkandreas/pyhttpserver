@@ -5,10 +5,12 @@ from flask_bootstrap import Bootstrap
 import caldav
 import carddav
 import common
+import datetime
 import financestatus
 import keyring
 import keyvalstore
 import nettime
+import random
 from periodic_fetch import PeriodicFetcher, MeteoSchweiz, Transferwise
 
 app = Flask(__name__)
@@ -108,6 +110,25 @@ def get_newtab_info():
 @app.route("/nettime")
 def get_nettime():
   return nettime.Nettime().get_buffered()
+
+@app.route("/random")
+def get_random_code():
+  dateStr = request.args['date'] if 'date' in request.args else ''
+  dd = request.args.to_dict()
+  if 'date' in dd: del dd['date']
+  pw = keyring.DbusKeyring().FindItem(dd)[1] if dd else '';
+  today = datetime.datetime.today()
+  dateArray = dateStr.split('.')
+  date = today
+  if len(dateArray)>0 and len(dateArray[0])>0: date = date.replace(day=int(dateArray[0]))
+  if len(dateArray)>1 and len(dateArray[1])>0: date = date.replace(month=int(dateArray[1]))
+  if len(dateArray)>2 and len(dateArray[2])>0: date = date.replace(year=int(dateArray[2]))
+  seed=date.strftime('%d%m%Y') + pw
+  random.seed(seed)
+  result = ''
+  for i in range(4): result += str(random.randrange(10))
+  return result
+
 
 if __name__ == "__main__":
   while True:

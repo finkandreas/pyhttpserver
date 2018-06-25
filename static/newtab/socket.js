@@ -28,5 +28,8 @@ $(function() {
     socket.on('nettime', function(data) {
       updateNettime(data.data);
     });
+    socket.on('ping', function(data) {
+      $('#ping').html("Last websocket ping: " + new Date().toString());
+    });
   }, 20*1000)
 })

@@ -28,6 +28,14 @@ periodicFetcher.register_callback(financestatus.FinanceStatus.update, frequency=
 periodicFetcher.register_callback(carddav.sync, frequency=3600, single_shot=False)
 socketio.start_background_task(periodicFetcher.run)
 
+
+def pingSocket(socketio):
+  socketio.emit('ping', '')
+  socketio.sleep(10);
+  socketio.start_background_task(pingSocket, socketio)
+socketio.start_background_task(pingSocket, socketio)
+
+
 @socketio.on('message')
 def handle_message(message):
   print('received message: ' + message)

@@ -12,7 +12,7 @@ $(function() {
   }
   jQuery.support.cors = true;
   var urls = [
-    'http://insecure.v22016112059440056.megasrv.de/bookmarks.php',
+    'http://insecure.vserverli.de/bookmarks.php',
   ];
   for (var i=0; i<urls.length; ++i) {
      $.ajax({

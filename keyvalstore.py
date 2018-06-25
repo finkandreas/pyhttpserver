@@ -26,7 +26,7 @@ class KeyValueStore(object):
     return default if len(res)==0 else pickle.loads(res[0][0])
 
   def set_versioned(self, key, value, version):
-    response = requests.post('https://dibser.v22016112059440056.megasrv.de/php/keyvaluestore.php?key={}&version={}'.format(key, version), data=pickle.dumps(value), headers={'Content-Type': 'application/octet-stream'})
+    response = requests.post('https://dibser.vserverli.de/php/keyvaluestore.php?key={}&version={}'.format(key, version), data=pickle.dumps(value), headers={'Content-Type': 'application/octet-stream'})
     response.raise_for_status()
     res = self.db.executesql('SELECT value from store where key=?', placeholders=[key])
     if len(res)>0: self.db.executesql('UPDATE store SET value=?, version=? where key=?', placeholders=[pickle.dumps(value), version, key])
@@ -43,7 +43,7 @@ class KeyValueStore(object):
       value = res[0][0]
 
     # check remote version and update if remote is newer (status code == 200 if a newer version is available, otherwise status code 404 if not available or 304 if older/same version)
-    response = requests.get('https://dibser.v22016112059440056.megasrv.de/php/keyvaluestore.php?key={}&version={}'.format(key, local_version))
+    response = requests.get('https://dibser.vserverli.de/php/keyvaluestore.php?key={}&version={}'.format(key, local_version))
     if response.status_code == 200:
       newest_version = int(response.headers['X-Keyvalstore-Version'])
       value=response.content

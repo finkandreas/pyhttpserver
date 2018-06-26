@@ -65,7 +65,6 @@ function updateWeather(data) {
 
   data.forEach(function(data) {
     var weatherData = JSON.parse(data.data);
-    console.log("weatherData=", weatherData);
     var nowHour = Math.max(0, (new Date(weatherData[0].current_time)).getHours()-1);
     weatherData[0].rainfall.splice(0, nowHour);
     weatherData[2].rainfall.splice(nowHour, 24-nowHour)

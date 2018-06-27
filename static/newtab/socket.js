@@ -48,18 +48,27 @@ $(function() {
   orig_log = console.log;
   orig_warn = console.warn;
   orig_error = console.error;
-  var consoleDivAdd = function(msg) {
+  var consoleDivAdd = function(msg, color="black") {
     var now = new Date();
     var twoDigit = function(nbr) {
       if (nbr<10) return '0'+nbr;
       else return ''+nbr;
     }
     DateString = '' + twoDigit(now.getDate()) + "." + twoDigit(now.getMonth()) + " " + twoDigit(now.getHours()) + ":" + twoDigit(now.getMinutes());
-    $('#socket_info').append('<div />').html(DateString + ":" + msg);
+    $('<div style="color: '+color+'" />').html(DateString + ":" + msg).appendTo($('#socket_info'));
     allChildren = $('#socket_info').children();
     for (var i=0; i<allChildren.length-10; ++i) allChildren[i].remove();
   };
-  console.log   = function() { orig_log.apply(this, arguments);   consoleDivAdd('Log: '+  JSON.stringify(arguments)); };
-  console.warn  = function() { orig_warn.apply(this, arguments);  consoleDivAdd('Warn: '+ JSON.stringify(arguments)); };
-  console.error = function() { orig_error.apply(this, arguments); consoleDivAdd('Error: '+JSON.stringify(arguments)); };
+  var argsToString = function() {
+    var ret = ''
+    for (var i=0; i<arguments.length; ++i) {
+      if (i>0) ret += ", ";
+      if (typeof({})==typeof(arguments[i]) || typeof([])==typeof(arguments[i])) ret += JSON.stringify(arguments[i]);
+      else ret += arguments[i];
+    }
+    return ret;
+  };
+  console.log   = function() { orig_log.apply(this, arguments);   consoleDivAdd('Log: '+  argsToString.apply(this, arguments)); };
+  console.warn  = function() { orig_warn.apply(this, arguments);  consoleDivAdd('Warn: '+ argsToString.apply(this, arguments), "blue"); };
+  console.error = function() { orig_error.apply(this, arguments); consoleDivAdd('Error: '+argsToString.apply(this, arguments), "red"); };
 });

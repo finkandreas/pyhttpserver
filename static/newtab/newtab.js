@@ -1,29 +1,31 @@
-$(function() {
-  localStorage2 = localStorage || {};
-  builtVersion = -1;
+'use strict';
+
+document.addEventListener("DOMContentLoaded", function() {
+  let localStorage2 = localStorage || {};
+  let builtVersion = -1;
   if (localStorage2.data != undefined) {
-    var jsonData = sjcl.json.decode(localStorage2.data);
+    let jsonData = sjcl.json.decode(localStorage2.data);
     builtVersion = jsonData.version || -1;
     try {
-      buildWebsite();
+      buildWebsite(localStorage2.data, localStorage2.pw);
     } catch(err) {
       console.log("Error while building website: ", err);
     }
   }
   jQuery.support.cors = true;
-  var urls = [
+  const urls = [
     'http://insecure.vserverli.de/bookmarks.php',
   ];
-  for (var i=0; i<urls.length; ++i) {
+  for (let i=0; i<urls.length; ++i) {
      $.ajax({
       url: urls[i],
       dataType: 'json',
       success: function(data) {
-        var jsonData = sjcl.json.decode(data.data);
+        const jsonData = sjcl.json.decode(data.data);
         if (builtVersion < jsonData.version) {
           builtVersion = jsonData.version || -1;
           localStorage2.data = data.data;
-          buildWebsite();
+          buildWebsite(localStorage2.data, localStorage2.pw);
         }
       },
       error: function(data, text, error ) {
@@ -33,7 +35,7 @@ $(function() {
     if (!localStorage2.pw) {
       $.get("/keyring?type=newtab", function(data) {
         localStorage2.pw = data;
-        buildWebsite();
+        buildWebsite(localStorage2.data, localStorage2.pw);
       });
     }
   };
@@ -56,27 +58,27 @@ $(function() {
 function updateWeather(data) {
   window.charts = window.charts || {};
 
-  var tempMinGlobal = 100;
-  var tempMaxGlobal = -100;
-  var rainMaxGlobal = 6;
-  var time;
-  var timeString;
-  var weatherDataAll = {}
+  let tempMinGlobal = 100;
+  let tempMaxGlobal = -100;
+  let rainMaxGlobal = 6;
+  let time;
+  let timeString;
+  const weatherDataAll = {}
 
   data.forEach(function(data) {
-    var weatherData = JSON.parse(data.data);
-    var nowHour = Math.max(0, (new Date(weatherData[0].current_time)).getHours()-1);
+    const weatherData = JSON.parse(data.data);
+    const nowHour = Math.max(0, (new Date(weatherData[0].current_time)).getHours()-1);
     weatherData[0].rainfall.splice(0, nowHour);
     weatherData[2].rainfall.splice(nowHour, 24-nowHour)
     weatherData[0].temperature.splice(0, nowHour);
     weatherData[2].temperature.splice(nowHour, 24-nowHour)
     weatherData[0].rainfall = weatherData[0].rainfall.concat(weatherData[1].rainfall, weatherData[2].rainfall);
     weatherData[0].temperature = weatherData[0].temperature.concat(weatherData[1].temperature, weatherData[2].temperature);
-    var precipitationData = weatherData[0].rainfall.map(function(el, idx) { return {x: el[0], y: el[1]}; });
-    var temperatureData = weatherData[0].temperature.map(function(el, idx) { return {x: el[0], y: el[1]}; });
-    var tempMin = weatherData[0].temperature.reduce(function(min, el) { return el[1]<min?el[1]:min; }, weatherData[0].temperature[0][1]);
-    var tempMax = weatherData[0].temperature.reduce(function(max, el) { return el[1]>max?el[1]:max; }, weatherData[0].temperature[0][1]);
-    var rainMax = weatherData[0].rainfall.reduce(function(max, el) { return el[1]>max?el[1]:max; }, weatherData[0].rainfall[0][1]);
+    const precipitationData = weatherData[0].rainfall.map(function(el, idx) { return {x: el[0], y: el[1]}; });
+    const temperatureData = weatherData[0].temperature.map(function(el, idx) { return {x: el[0], y: el[1]}; });
+    const tempMin = weatherData[0].temperature.reduce(function(min, el) { return el[1]<min?el[1]:min; }, weatherData[0].temperature[0][1]);
+    const tempMax = weatherData[0].temperature.reduce(function(max, el) { return el[1]>max?el[1]:max; }, weatherData[0].temperature[0][1]);
+    const rainMax = weatherData[0].rainfall.reduce(function(max, el) { return el[1]>max?el[1]:max; }, weatherData[0].rainfall[0][1]);
 
     time = weatherData[0].current_time;
     timeString = weatherData[0].current_time_string;
@@ -86,7 +88,7 @@ function updateWeather(data) {
     weatherDataAll[data.zip] = { temperature : temperatureData, precipitation: precipitationData };
   });
 
-  var ctxName = 'weatherChart895300';
+  const ctxName = 'weatherChart895300';
   if (ctxName in window.charts) { window.charts[ctxName].destroy(); }
   window.charts[ctxName] = new Chart(document.getElementById(ctxName).getContext('2d'), {
     type: 'bar',
@@ -195,13 +197,13 @@ function updateNettime(newValue) {
 
 
 function updateTransferrateHistory() {
-  var nbrOfReceivedData=0;
-  var history = {};
-  var ctxName = 'weatherChart895300';
-  var updateChart = function(dataName, data) {
+  let nbrOfReceivedData=0;
+  const history = {};
+  const ctxName = 'weatherChart895300';
+  const updateChart = function(dataName, data) {
     data = data.replace(/[\[()\] ]/g, '').split(",")
-    var plotData = new Array(data.length/2);
-    for (var i=0; i<data.length/2; ++i) plotData[i] = {x:Number(data[2*i]+'000'), y:Number(data[2*i+1])};
+    const plotData = new Array(data.length/2);
+    for (let i=0; i<data.length/2; ++i) plotData[i] = {x:Number(data[2*i]+'000'), y:Number(data[2*i+1])};
     nbrOfReceivedData += 1;
     history[dataName] = plotData;
     window.charts[ctxName].destroy();
@@ -272,25 +274,23 @@ function updateFromInfo(data) {
 }
 
 
-function buildWebsite() {
-  data = localStorage2.data;
-  pw = localStorage2.pw;
+function buildWebsite(data, pw) {
   if (!data || !pw) return;
   document.dynamicNodes = document.dynamicNodes || jQuery();
   document.dynamicNodes.remove();
   document.dynamicNodes = jQuery();
-  var bookmarksDOM = new DOMParser().parseFromString(decodeWithSjcl(data, pw), "text/xml");
-  var bookmarksHeadChildren = document.importNode(bookmarksDOM.getElementsByTagName('head')[0], true);
-  var bookmarksHeadChildren = bookmarksHeadChildren.childNodes;
-  for (var i=0; i<bookmarksHeadChildren.length; ++i) {
-    var newNode = bookmarksHeadChildren[i].cloneNode(true);
+  const bookmarksDOM = new DOMParser().parseFromString(decodeWithSjcl(data, pw), "text/xml");
+  let bookmarksHeadChildren = document.importNode(bookmarksDOM.getElementsByTagName('head')[0], true);
+  bookmarksHeadChildren = bookmarksHeadChildren.childNodes;
+  for (let i=0; i<bookmarksHeadChildren.length; ++i) {
+    const newNode = bookmarksHeadChildren[i].cloneNode(true);
     document.head.appendChild(newNode);
     document.dynamicNodes = document.dynamicNodes.add(newNode);
   }
-  var bookmarksBodyChildren = document.importNode(bookmarksDOM.getElementsByTagName('body')[0], true);
-  var bookmarksBodyChildren = bookmarksBodyChildren.childNodes;
-  for (var i=0; i<bookmarksBodyChildren.length; ++i) {
-    var newNode = bookmarksBodyChildren[i].cloneNode(true);
+  let bookmarksBodyChildren = document.importNode(bookmarksDOM.getElementsByTagName('body')[0], true);
+  bookmarksBodyChildren = bookmarksBodyChildren.childNodes;
+  for (let i=0; i<bookmarksBodyChildren.length; ++i) {
+    let newNode = bookmarksBodyChildren[i].cloneNode(true);
     document.body.appendChild(newNode);
     document.dynamicNodes = document.dynamicNodes.add(newNode);
   }
@@ -303,7 +303,7 @@ function buildWebsite() {
     $(this).hide();
   }).hide();
 
-  var timeoutId = 0;
+  let timeoutId = 0;
   $('#financestatus').hover(function(ev) {
     timeoutId = setTimeout(function() {
       $('<div id="financestatus_div" style="position: absolute; width: 1200px; height: 800px"><iframe src="/dkb" style="width: 100%; height: 100%" /></div>').offset({top: 0, left: ev.pageX}).appendTo($('body'));
@@ -318,7 +318,7 @@ function buildWebsite() {
     timeoutId = setTimeout(function() { $('#financestatus_div').remove(); }, 200);
   });
 
-  $('#transferwise_status').hover(function(ev) { timeoutId = setTimeout(updateTransferrateHistory, 500); }, function() { clearTimeout(timeoutId); });
+  $('#transferwise_status').hover((ev) => timeoutId = setTimeout(updateTransferrateHistory, 500), () => clearTimeout(timeoutId));
 
   if (typeof startupData !== "undefined") {
     $('#weatherParent').show();

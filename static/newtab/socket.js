@@ -1,31 +1,22 @@
+'use strict';
+
 $(function() {
   // connect to the websocket only 60 seconds after opening, thus stopping to connect for shortly opened new tabs
   setTimeout(function() {
-    var socket = io('http://' + document.domain + ':' + document.location.port, {transports: ['websocket']})
-    // var socket = io.connect('http://' + document.domain + ':' + document.location.port + '/NAMESPACE')
+    let socket = io(`http://${document.domain}:${document.location.port}`, {transports: ['websocket']})
 
     // events sent with socketio.send(...) will all be matched with this event handler
-    socket.on('message', function(data) {
-      $('#notifications').html(data).show()
-    });
+    socket.on('message', data => $('#notifications').html(data).show())
 
     // events sent with socketio.send(...json=True) will all be matched with this event handler
-    socket.on('json', function(data) {
-      console.log("Received an unnamed event with data ", data);
-    });
+    socket.on('json', data => console.log("Received an unnamed event with data ", data));
 
     // events sent with socketio.emit(...) will have an event name
-    socket.on('some event name', function(data) {
-      console.log("Received 'some event name' event", data);
-    });
+    socket.on('some event name', data => console.log("Received 'some event name' event", data));
 
-    socket.on('weather', function(data) {
-      updateWeather(data);
-    });
-    socket.on('transferwise', function(data) {
-      updateTransferwise(data.data);
-    });
-    socket.on('nettime', function(data) {
+    socket.on('weather', data => updateWeather(data));
+    socket.on('transferwise', data => updateTransferwise(data.data));
+    socket.on('nettime', data => updateNettime(data.data));
       updateNettime(data.data);
     });
     socket.on('ping', function(data) {
@@ -45,23 +36,23 @@ $(function() {
   }, 20*1000)
 
   console.log("Overriding console object");
-  orig_log = console.log;
-  orig_warn = console.warn;
-  orig_error = console.error;
-  var consoleDivAdd = function(msg, color="black") {
-    var now = new Date();
-    var twoDigit = function(nbr) {
+  const orig_log = console.log;
+  const orig_warn = console.warn;
+  const orig_error = console.error;
+  const consoleDivAdd = function(msg, color="black") {
+    let now = new Date();
+    let twoDigit = function(nbr) {
       if (nbr<10) return '0'+nbr;
       else return ''+nbr;
     }
-    DateString = '' + twoDigit(now.getDate()) + "." + twoDigit(now.getMonth()) + " " + twoDigit(now.getHours()) + ":" + twoDigit(now.getMinutes());
-    $('<div style="color: '+color+'" />').html(DateString + ":" + msg).appendTo($('#socket_info'));
-    allChildren = $('#socket_info').children();
-    for (var i=0; i<allChildren.length-10; ++i) allChildren[i].remove();
+    const DateString = `${twoDigit(now.getDate())}.${twoDigit(now.getMonth())}.${twoDigit(now.getHours())}:${twoDigit(now.getMinutes())}`;
+    $('<div style="color: '+color+'" />').html(`${DateString}: ${msg}`).appendTo($('#socket_info'));
+    const allChildren = $('#socket_info').children();
+    for (let i=0; i<allChildren.length-10; ++i) allChildren[i].remove();
   };
-  var argsToString = function() {
-    var ret = ''
-    for (var i=0; i<arguments.length; ++i) {
+  const argsToString = function() {
+    let ret = ''
+    for (let i=0; i<arguments.length; ++i) {
       if (i>0) ret += ", ";
       if (typeof({})==typeof(arguments[i]) || typeof([])==typeof(arguments[i])) ret += JSON.stringify(arguments[i]);
       else ret += arguments[i];

@@ -39,9 +39,9 @@ document.addEventListener("DOMContentLoaded", function() {
     let now = new Date();
     let twoDigit = nbr => (nbr<10) ? '0'+nbr : ''+nbr;
     const DateString = `${twoDigit(now.getDate())}.${twoDigit(now.getMonth())}.${twoDigit(now.getHours())}:${twoDigit(now.getMinutes())}`;
-    $(`<div style="color: ${color}" />`).html(`${DateString}: ${msg}`).appendTo($('#socket_info'));
+    $(`<div style="color: ${color}; max-height: 2em; overflow-y: auto;" />`).html(`${DateString}: ${msg}`).prependTo($('#socket_info'));
     const allChildren = $('#socket_info').children();
-    for (let i=0; i<allChildren.length-10; ++i) allChildren[i].remove();
+    for (let i=10; i<allChildren.length; ++i) allChildren[i].remove();
   };
   const argsToString = (...args) => {
     let ret = ''

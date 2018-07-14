@@ -113,7 +113,7 @@ def get_newtab():
 
 @app.route("/newtab/info")
 def get_newtab_info():
-  return json.jsonify(dict(meteoschweiz=[dict(zip=z, data=MeteoSchweiz().get_buffered(z)) for z in ('895300', '804900')], transferwise=Transferwise().get_buffered(), nettime=nettime.Nettime().get_buffered()))
+  return json.jsonify(dict(meteoschweiz=[dict(zip=z, data=json.loads(MeteoSchweiz().get_buffered(z))) for z in ('895300', '804900')], transferwise=Transferwise().get_buffered(), nettime=nettime.Nettime().get_buffered()))
 
 @app.route("/nettime")
 def get_nettime():

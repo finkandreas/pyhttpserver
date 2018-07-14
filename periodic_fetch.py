@@ -80,7 +80,7 @@ class MeteoSchweiz(object):
         newStatus = MeteoSchweiz().get_buffered(zip)
       if (newStatus):
         keyvalstore.KeyValueStore().set("meteoschweiz.{}.fullJson".format(zip), newStatus)
-        ret.append({'zip': zip, 'data': newStatus})
+        ret.append({'zip': zip, 'data': json.loads(newStatus)})
     print("{}: Updated MeteoSchweiz".format(datetime.datetime.now()))
     return (True, {'channel': 'weather', 'data': ret})
 

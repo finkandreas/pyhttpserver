@@ -187,12 +187,12 @@ function updateWeather(data) {
 
 
 function updateTransferwise(newValue) {
-  $('#transferwise_status').html(' ('+newValue+')');
+  $('#transferwise_status').html(` (${newValue})`);
 }
 
 
 function updateNettime(newValue) {
-  $('#nettime_status').html(' ('+newValue+')');
+  $('#nettime_status').html(` (${newValue})`);
 }
 
 

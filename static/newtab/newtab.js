@@ -52,6 +52,19 @@ document.addEventListener("DOMContentLoaded", function() {
       data.stopPropagation();
     }
   });
+
+  let updatePingStatus = function() {
+    $.get('http://insecure.vserverli.de/ping_status.php', function(data) {
+      $('#ping_status').empty();
+      data.forEach(function(element) {
+        let nowTimestamp = Math.floor(Date.now() / 1000);
+        let currentlyUp = nowTimestamp-element.timestamp < 600 ? "green" : "red";
+        $('#ping_status').append(`<div class="tooltip" style="background: ${currentlyUp}; width: 20px; height: 20px; display: inline-block; border-radius: 10px;"><span class="tooltiptext">${element.hostname} ${element.ip_lan} ${element.ip_wan}</span></div>`);
+        setTimeout(updatePingStatus, 5*60*1000);
+      });
+    });
+  }
+  setTimeout(updatePingStatus, 60000);
 });
 
 

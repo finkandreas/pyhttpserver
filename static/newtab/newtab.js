@@ -64,7 +64,7 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   }
   setInterval(updatePingStatus, 60*5*1000);
-  updatePingStatus();
+  setTimeout(updatePingStatus, 1000);
 });
 
 

@@ -12,7 +12,7 @@ class FinanceStatus(object):
   def update(socketio):
     newStatus = []
     try:
-      newStatus = dkb.get(3)+comdirect.get(3)
+      newStatus = dkb.get(3)
     except RequestException as e:
       print("RequestException while trying to fetch the finance status. Exception: ", e)
       return (False, {})

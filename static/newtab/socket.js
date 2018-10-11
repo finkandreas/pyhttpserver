@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", function() {
     let socket = io(`http://${document.domain}:${document.location.port}`, {transports: ['websocket']})
 
     // events sent with socketio.send(...) will all be matched with this event handler
-    socket.on('message', data => $('#notifications').html(data).show())
+    socket.on('message', data => { console.log("message received"); $('#notifications').html(data).show(); });
 
     // events sent with socketio.send(...json=True) will all be matched with this event handler
     socket.on('json', data => console.log("Received an unnamed event with data ", data));
@@ -14,9 +14,9 @@ document.addEventListener("DOMContentLoaded", function() {
     // events sent with socketio.emit(...) will have an event name
     socket.on('some event name', data => console.log("Received 'some event name' event", data));
 
-    socket.on('weather', data => updateWeather(data));
-    socket.on('transferwise', data => updateTransferwise(data.data));
-    socket.on('nettime', data => updateNettime(data.data));
+    socket.on('weather', data => { console.log("weather received"); updateWeather(data); });
+    socket.on('transferwise', data => { console.log("transferwise received"); updateTransferwise(data.data); });
+    socket.on('nettime', data => { console.log("nettime received"); updateNettime(data.data); });
     socket.on('ping', data => $('#ping').html(`Last websocket ping: ${new Date().toString()}`));
 
     socket.on('connect', () => console.log("socket connect"));
@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", function() {
   const consoleDivAdd = (msg, color="black") => {
     let now = new Date();
     let twoDigit = nbr => (nbr<10) ? '0'+nbr : ''+nbr;
-    const DateString = `${twoDigit(now.getDate())}.${twoDigit(now.getMonth())}.${twoDigit(now.getHours())}:${twoDigit(now.getMinutes())}`;
+    const DateString = `${twoDigit(now.getDate())}.${twoDigit(now.getMonth())}.${twoDigit(now.getHours())}:${twoDigit(now.getMinutes())}:${twoDigit(now.getSeconds())}`;
     $(`<div style="color: ${color}; max-height: 2em; overflow-y: auto;" />`)
       .html(`${DateString}: ${msg}`)
       .prependTo($('#socket_info'))

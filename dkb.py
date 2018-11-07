@@ -44,7 +44,7 @@ def get(delta=9):
   accountStatus = [ (row[1][0].text.strip(), row[1][1].text.strip(), row[-2][0].text.strip()) for row in allRows ] # array with all account status (Name, IBAN, Balance)
   logoutHref = "https://www.dkb.de{}".format(doc.cssselect('#logout')[0].get('href'))
 
-  accounts = ["0", "4", "5", "6", "8"]
+  accounts = ["0", "3", "4", "5", "7"]
   interestedAccounts = []
   for accountId in accounts:
     interestedAccounts.append(accountStatus[int(accountId)])
@@ -54,7 +54,7 @@ def get(delta=9):
     payload = dict(slAllAccounts=accountId, slTransactionStatus="0")
     start = (datetime.date.today()-datetime.timedelta(days=(delta+(2 if accountId in ("3","4") else 0)))).strftime("%d.%m.%Y")
     end = datetime.date.today().strftime("%d.%m.%Y")
-    if accountId in ("3", "4"):
+    if accountId in ("3", ):
       payload.update(dict(slSearchPeriod="0", filterType="DATE_RANGE", slTransactionStatus="0", postingDate=start, toPostingDate=end))
     else:
       payload.update(dict(slSearchPeriod="1", searchPeriodRadio="1", transactionDate=start, toTransactionDate=end))

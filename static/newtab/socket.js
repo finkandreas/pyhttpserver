@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", function() {
     socket.on('weather', data => { console.log("weather received"); updateWeather(data); });
     socket.on('transferwise', data => { console.log("transferwise received"); updateTransferwise(data.data); });
     socket.on('nettime', data => { console.log("nettime received"); updateNettime(data.data); });
-    socket.on('ping', data => $('#ping').html(`Last websocket ping: ${new Date().toString()}`));
+    socket.on('pinging', data => $('#ping').html(`Last websocket ping: ${new Date().toString()}`));
 
     socket.on('connect', () => console.log("socket connect"));
     socket.on('connect_error', error => console.error(`socket connect_error. error=${error}`));

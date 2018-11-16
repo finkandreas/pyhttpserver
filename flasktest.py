@@ -30,7 +30,7 @@ socketio.start_background_task(periodicFetcher.run)
 
 
 def pingSocket(socketio):
-  socketio.emit('ping', '')
+  socketio.emit('pinging', '')
   socketio.sleep(10);
   socketio.start_background_task(pingSocket, socketio)
 socketio.start_background_task(pingSocket, socketio)

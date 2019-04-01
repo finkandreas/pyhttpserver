@@ -54,7 +54,7 @@ document.addEventListener("DOMContentLoaded", function() {
   });
 
   let updatePingStatus = function() {
-    $.get('http://insecure.vserverli.de/ping_status.php', function(data) {
+    $.get('https://vserverli.de/ping_status.php', function(data) {
       $('#ping_status').empty();
       data.forEach(function(element) {
         let nowTimestamp = Math.floor(Date.now() / 1000);

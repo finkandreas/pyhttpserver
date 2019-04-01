@@ -19,16 +19,17 @@ document.addEventListener("DOMContentLoaded", function() {
     socket.on('nettime', data => { console.log("nettime received"); updateNettime(data.data); });
     socket.on('ping', data => $('#ping').html(`Last websocket ping: ${new Date().toString()}`));
 
-    socket.on('connect', () => console.log("socket connect"));
+    socket.on('connect', () => { console.log("socket connect"); if (socket.sendOnReconnect) socket.send("connected"); });
     socket.on('connect_error', error => console.error(`socket connect_error. error=${error}`));
     socket.on('connect_timeout', timeout => console.warn(`socket connect_timeout. timeout=${timeout}`));
     socket.on('error', error => console.error(`socket error. error=${error}`));
     socket.on('disconnect', reason => console.warn(`socket disconnect. reason=${reason}`));
-    socket.on('reconnect', attempt => console.log(`socket reconnect. attempt=${attempt}`));
+    socket.on('reconnect', attempt => { console.log(`socket reconnect. attempt=${attempt}`); socket.sendOnReconnect=true; });
     socket.on('reconnect_attempt', attempt => console.log(`socket reconnect_attempt. attempt=${attempt}`));
     socket.on('reconnecting', attempt => console.log(`socket reconnecting. attempt=${attempt}`));
     socket.on('reconnect_error', error => console.error(`socket reconnect_error. error=${error}`));
     socket.on('reconnect_failed', () => console.error('socket reconnect_failed'));
+    document.socket = socket;
   }, 20*1000)
 
   console.log("Overriding console object");
@@ -42,7 +43,7 @@ document.addEventListener("DOMContentLoaded", function() {
     $(`<div style="color: ${color}; max-height: 2em; overflow-y: auto;" />`)
       .html(`${DateString}: ${msg}`)
       .prependTo($('#socket_info'))
-      .click(e=> $(e.target).remove());
+      .click(e=> {$(e.target).remove(); document.socket.send("Clicked...");});
     const allChildren = $('#socket_info').children();
     for (let i=10; i<allChildren.length; ++i) allChildren[i].remove();
   };

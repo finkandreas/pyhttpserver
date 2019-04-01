@@ -1,5 +1,5 @@
 from flask import Flask, render_template, json, request, make_response
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO, send
 from flask_bootstrap import Bootstrap
 
 import caldav
@@ -29,7 +29,7 @@ periodicFetcher.register_callback(carddav.sync, frequency=3600, single_shot=Fals
 socketio.start_background_task(periodicFetcher.run)
 
 
-def pingSocket(socketio):
+def pingSocket(socketio2):
   socketio.emit('ping', '')
   socketio.sleep(10);
   socketio.start_background_task(pingSocket, socketio)
@@ -39,6 +39,7 @@ socketio.start_background_task(pingSocket, socketio)
 @socketio.on('message')
 def handle_message(message):
   print('received message: ' + message)
+  socketio.send('received message: ' + message)
 
 @app.route("/")
 def hello():

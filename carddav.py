@@ -13,7 +13,7 @@ from misc import *
 import os
 import re
 
-def sync(socketio):
+def sync():
   try:
     c = CardDav()
     c.sync()
@@ -275,3 +275,6 @@ class CardDav(object):
     for server in incomingJson['servers']:
       for carddav in server['carddav_collections']:
         self.db.collections.update_or_insert(self.db.collections.url==carddav['url'], url=carddav['url'], subscribed=carddav["subscribed"]);
+
+if __name__ == "__main__":
+  sync()

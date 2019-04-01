@@ -45,6 +45,7 @@ def get(delta=9):
   logoutHref = "https://www.dkb.de{}".format(doc.cssselect('#logout')[0].get('href'))
 
   accounts = ["0", "3", "4", "5", "7"]
+  creditCards = ("3", )
   interestedAccounts = []
   for accountId in accounts:
     interestedAccounts.append(accountStatus[int(accountId)])
@@ -52,14 +53,14 @@ def get(delta=9):
   removeCommon = re.compile('{}|{}|{}|{}|{}|{}|{}|1\.TAN\s+\d+'.format(re.escape('GV-Code: '), 'Gutschrift', 'Überweisung', 'Dauerauftrag', re.escape('Kartenzahlung/-abrechnung'), re.escape('Lohn, Gehalt, Rente'), 'Lastschrift'), re.IGNORECASE)
   for accountId in accounts:
     payload = dict(slAllAccounts=accountId, slTransactionStatus="0")
-    start = (datetime.date.today()-datetime.timedelta(days=(delta+(2 if accountId in ("3","4") else 0)))).strftime("%d.%m.%Y")
+    start = (datetime.date.today()-datetime.timedelta(days=(delta+(2 if accountId in creditCards else 0)))).strftime("%d.%m.%Y")
     end = datetime.date.today().strftime("%d.%m.%Y")
-    if accountId in ("3", ):
+    if accountId in creditCards:
       payload.update(dict(slSearchPeriod="0", filterType="DATE_RANGE", slTransactionStatus="0", postingDate=start, toPostingDate=end))
     else:
       payload.update(dict(slSearchPeriod="1", searchPeriodRadio="1", transactionDate=start, toTransactionDate=end))
     payload['$event'] = "search"
-    response = session.post('https://www.dkb.de/banking/finanzstatus/{}'.format("kontoumsaetze" if not accountId in ("3", "4") else "kreditkartenumsaetze"), data = payload)
+    response = session.post('https://www.dkb.de/banking/finanzstatus/{}'.format("kontoumsaetze" if not accountId in creditCards else "kreditkartenumsaetze"), data = payload)
     response.raise_for_status()
     #~ open("response{}.raw".format(accountId), "wb").write(response.content)
     doc = etree.HTML(response.content)

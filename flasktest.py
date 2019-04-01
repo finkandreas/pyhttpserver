@@ -29,8 +29,8 @@ periodicFetcher.register_callback(carddav.sync, frequency=3600, single_shot=Fals
 socketio.start_background_task(periodicFetcher.run)
 
 
-def pingSocket(socketio2):
-  socketio.emit('ping', '')
+def pingSocket(socketio):
+  socketio.emit('pinging', '')
   socketio.sleep(10);
   socketio.start_background_task(pingSocket, socketio)
 socketio.start_background_task(pingSocket, socketio)
